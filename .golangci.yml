@@ -1,0 +1,61 @@
+version: "2"
+linters:
+  default: all
+  disable:
+    - depguard
+    - forbidigo
+    - funcorder
+    - godox
+    - mnd
+    - nlreturn
+    - nonamedreturns
+    - varnamelen
+    - wsl
+  settings:
+    gocyclo:
+      min-complexity: 20
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+      allow-unused: false
+    wrapcheck:
+      ignore-sigs:
+        - .Wait(
+        - .Errorf(
+        - errors.New(
+        - errors.Unwrap(
+        - errors.Join(
+        - .Wrap(
+        - .Wrapf(
+        - .WithMessage(
+        - .WithMessagef(
+        - .WithStack(
+        - (context.Context).Err()
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - dogsled
+          - dupl
+          - err113
+          - errcheck
+          - forcetypeassert
+          - funlen
+          - gocognit
+          - goconst
+          - gosec
+          - maintidx
+        path: (.+)_test\.go
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
