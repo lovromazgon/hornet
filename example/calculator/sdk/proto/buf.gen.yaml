@@ -1,0 +1,14 @@
+version: v1
+managed:
+  enabled: true
+  go_package_prefix:
+    default: "github.com/lovromazgon/hornet/example/calculator/sdk/proto"
+plugins:
+  - plugin: buf.build/protocolbuffers/go:v1.36.8
+    out: .
+    opt:
+      - paths=source_relative
+  - plugin: buf.build/grpc/go:v1.5.1
+    out: .
+    opt:
+      - paths=source_relative

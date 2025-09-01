@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package calculator.v1;
+
+message Add {
+  message Request {
+    int64 a = 1;
+    int64 b = 2;
+  }
+  message Response {
+    int64 c = 1;
+  }
+}
+
+message Sub {
+  message Request {
+    int64 a = 1;
+    int64 b = 2;
+  }
+  message Response {
+    int64 c = 1;
+  }
+}
+
+message Mul {
+  message Request {
+    int64 a = 1;
+    int64 b = 2;
+  }
+  message Response {
+    int64 c = 1;
+  }
+}
+
+message Div {
+  message Request {
+    int64 a = 1;
+    int64 b = 2;
+  }
+  message Response {
+    int64 c = 1;
+  }
+}
+
+service Calculator {
+  rpc Add(Add.Request) returns (Add.Response);
+  rpc Sub(Sub.Request) returns (Sub.Response);
+  rpc Mul(Mul.Request) returns (Mul.Response);
+  rpc Div(Div.Request) returns (Div.Response);
+}
