@@ -35,6 +35,7 @@ var (
 // does not exist or does not match the expected definition.
 func getExportedFunction(module api.Module, wantFn functionDefinition) (fn api.Function, err error) {
 	fn = module.ExportedFunction(wantFn.name)
+
 	var def api.FunctionDefinition
 
 	func() {
@@ -45,6 +46,7 @@ func getExportedFunction(module api.Module, wantFn functionDefinition) (fn api.F
 				err = fmt.Errorf("exported function %q does not exist", wantFn.name)
 			}
 		}()
+
 		def = fn.Definition()
 	}()
 
@@ -60,11 +62,13 @@ func isValidFunctionDefinition(want functionDefinition, got api.FunctionDefiniti
 		len(got.ResultTypes()) != len(want.resultTypes) {
 		return false
 	}
+
 	for i, typ := range got.ParamTypes() {
 		if want.paramTypes[i] != typ {
 			return false
 		}
 	}
+
 	for i, typ := range got.ResultTypes() {
 		if want.resultTypes[i] != typ {
 			return false
@@ -101,11 +105,13 @@ func (e *functionDefinitionError) formatFunctionDefinition(params []api.ValueTyp
 	out.WriteString(e.expected.name + "(")
 	out.WriteString(e.formatValueTypes(params))
 	out.WriteString(")")
+
 	if len(results) > 0 {
 		out.WriteString(" -> (")
 		out.WriteString(e.formatValueTypes(results))
 		out.WriteString(")")
 	}
+
 	return out.String()
 }
 
@@ -118,6 +124,8 @@ func (e *functionDefinitionError) formatValueTypes(types []api.ValueType) string
 	for _, typ := range types {
 		out += api.ValueTypeName(typ) + ", "
 	}
+
 	out = out[:len(out)-2] // Remove the trailing comma and space
+
 	return out
 }

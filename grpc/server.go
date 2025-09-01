@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"os"
 	"reflect"
@@ -70,18 +69,21 @@ func NewServer(opt ...ServerOption) *Server {
 func (s *Server) RegisterService(sd *grpc.ServiceDesc, ss any) {
 	if ss != nil {
 		ht := reflect.TypeOf(sd.HandlerType).Elem()
+
 		st := reflect.TypeOf(ss)
 		if !st.Implements(ht) {
 			s.opts.logger.Error("proto: Server.RegisterService found an incompatible handler type", "want", ht, "got", st)
 			os.Exit(1) // That's what the original gRPC implementation does.
 		}
 	}
+
 	s.register(sd, ss)
 }
 
 func (s *Server) register(sd *grpc.ServiceDesc, ss any) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
 	s.opts.logger.Debug("Registering service", "service", sd.ServiceName)
 	// if s.serve {
 	// 	logger.Fatalf("grpc: Server.RegisterService after Server.Serve for %q", sd.ServiceName)
@@ -90,17 +92,21 @@ func (s *Server) register(sd *grpc.ServiceDesc, ss any) {
 		s.opts.logger.Error("proto: Server.RegisterService found duplicate service registration", "service", sd.ServiceName)
 		os.Exit(1)
 	}
+
 	if len(sd.Streams) > 0 {
 		s.opts.logger.Warn("proto: Server.RegisterService found stream service, streams are not supported in Wasm plugins", "service", sd.ServiceName)
 	}
+
 	info := &serviceInfo{
 		serviceImpl: ss,
 		methods:     make(map[string]*grpc.MethodDesc),
 	}
+
 	for i := range sd.Methods {
 		d := &sd.Methods[i]
 		info.methods[d.MethodName] = d
 	}
+
 	s.services[sd.ServiceName] = info
 }
 
@@ -128,6 +134,7 @@ func (s *Server) Handle(fn string, reqBytes []byte) []byte {
 			"service", service,
 		)
 	}
+
 	sd, ok := srv.methods[method]
 	if !ok {
 		return s.handleError(
@@ -147,6 +154,7 @@ func (s *Server) Handle(fn string, reqBytes []byte) []byte {
 			st = status.FromContextError(err)
 			err = st.Err()
 		}
+
 		return s.handleError(st, "service", service, "method", method, "error", err)
 	}
 
@@ -163,7 +171,7 @@ func (s *Server) Handle(fn string, reqBytes []byte) []byte {
 }
 
 func (s *Server) handleError(st *status.Status, args ...any) []byte {
-	s.opts.logger.Error(fmt.Sprintf("proto: Server.Handle %s", st.Message()), args...)
+	s.opts.logger.Error("proto: Server.Handle "+st.Message(), args...)
 
 	out, err := proto.Marshal(st.Proto())
 	if err != nil {

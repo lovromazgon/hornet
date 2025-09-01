@@ -33,6 +33,7 @@ func (b *buffer) Pointer() unsafe.Pointer {
 	if len(*b) == 0 {
 		return nil
 	}
+
 	return unsafe.Pointer(&(*b)[0])
 }
 

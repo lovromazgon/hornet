@@ -94,6 +94,7 @@ func NewClient(module api.Module, opt ...ClientOption) (*ClientConn, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	commandFn, err := getExportedFunction(module, commandFunctionDefinition)
 	if err != nil {
 		return nil, err
@@ -160,6 +161,7 @@ func (c *ClientConn) executeCall(
 			logger.ErrorContext(ctx, "failed to call Wasm function", "function", c.mallocFn.Definition().Name(), "error", err)
 			return fmt.Errorf("failed to call Wasm function %q: %w", c.mallocFn.Definition().Name(), err)
 		}
+
 		c.modulePointer = api.DecodeU32(results[0])
 		c.lastMemorySize = c.module.Memory().Size()
 

@@ -19,6 +19,7 @@ func main() {
 	// Create a Wasm runtime, set up WASI.
 	r := wazero.NewRuntime(ctx)
 	defer r.Close(ctx)
+
 	wasi_snapshot_preview1.MustInstantiate(ctx, r)
 
 	wasmBytes, err := os.ReadFile(path)
@@ -40,37 +41,45 @@ func main() {
 
 func add(ctx context.Context, calc sdk.Calculator) {
 	a, b := randomNumbers()
+
 	c, err := calc.Add(ctx, a, b)
 	if err != nil {
 		panic(err)
 	}
+
 	fmt.Printf("Add(%d, %d): %d\n", a, b, c)
 }
 
 func sub(ctx context.Context, calc sdk.Calculator) {
 	a, b := randomNumbers()
+
 	c, err := calc.Sub(ctx, a, b)
 	if err != nil {
 		panic(err)
 	}
+
 	fmt.Printf("Sub(%d, %d): %d\n", a, b, c)
 }
 
 func mul(ctx context.Context, calc sdk.Calculator) {
 	a, b := randomNumbers()
+
 	c, err := calc.Mul(ctx, a, b)
 	if err != nil {
 		panic(err)
 	}
+
 	fmt.Printf("Mul(%d, %d): %d\n", a, b, c)
 }
 
 func div(ctx context.Context, calc sdk.Calculator) {
 	a, b := randomNumbers()
+
 	c, err := calc.Div(ctx, a, b)
 	if err != nil {
 		panic(err)
 	}
+
 	fmt.Printf("Div(%d, %d): %d\n", a, b, c)
 }
 
