@@ -1,8 +1,10 @@
 package sdk
 
+import "context"
+
 type Calculator interface {
-	Add(a, b int64) int64
-	Sub(a, b int64) int64
-	Mul(a, b int64) int64
-	Div(a, b int64) int64
+	Add(ctx context.Context, a, b int64) (int64, error)
+	Sub(ctx context.Context, a, b int64) (int64, error)
+	Mul(ctx context.Context, a, b int64) (int64, error)
+	Div(ctx context.Context, a, b int64) (int64, error)
 }

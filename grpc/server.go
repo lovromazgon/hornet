@@ -118,7 +118,7 @@ func (s *Server) Handle(fn string, reqBytes []byte) []byte {
 		)
 	}
 
-	service := fn[:pos]
+	service := strings.TrimPrefix(fn[1:pos], "/")
 	method := fn[pos+1:]
 
 	srv, ok := s.services[service]
@@ -137,17 +137,10 @@ func (s *Server) Handle(fn string, reqBytes []byte) []byte {
 	}
 
 	decFn := func(v any) error {
-		msg, ok := v.(proto.Message)
-		if !ok {
-			return fmt.Errorf("proto: error unmarshalling request: expected proto.Message, got %T", v)
-		}
-		if err := proto.Unmarshal(reqBytes, msg); err != nil {
-			return fmt.Errorf("proto: error unmarshalling request: %w", err)
-		}
-		return nil
+		return protoUnmarshal(reqBytes, v)
 	}
 
-	resp, err := sd.Handler(srv, ctx, decFn, nil)
+	resp, err := sd.Handler(srv.serviceImpl, ctx, decFn, nil)
 	if err != nil {
 		st, ok := status.FromError(err)
 		if !ok {
@@ -157,15 +150,8 @@ func (s *Server) Handle(fn string, reqBytes []byte) []byte {
 		return s.handleError(st, "service", service, "method", method, "error", err)
 	}
 
-	respMsg, ok := resp.(proto.Message)
-	if !ok {
-		return s.handleError(
-			status.New(codes.Internal, "response is not a proto.Message"),
-			"service", service, "method", method, "response", resp,
-		)
-	}
-
-	respBytes, err := proto.Marshal(respMsg)
+	// TODO: reuse bytes buffer
+	respBytes, err := protoMarshalAppend(nil, resp)
 	if err != nil {
 		return s.handleError(
 			status.New(codes.Internal, "error marshalling response"),

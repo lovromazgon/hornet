@@ -22,5 +22,7 @@ func (f HandlerFunc) Handle(method string, req []byte) (resp []byte) { return f(
 // Init needs to be called in an init function in the wasm plugin to initialize
 // the wasm call handler.
 func Init(h Handler) {
+	// TODO check magic cookie env var
+	// TODO check that the handler wasn't yet initialized
 	handler = h
 }
