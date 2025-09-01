@@ -22,16 +22,6 @@ var defaultClientOptions = clientOptions{
 	logger: slog.Default(),
 }
 
-type ClientOption interface {
-	applyClient(*clientOptions)
-}
-
-// funcClientOption wraps a function that modifies clientOptions into an
-// implementation of the ClientOption interface.
-type funcClientOption func(*clientOptions)
-
-func (f funcClientOption) applyClient(so *clientOptions) { f(so) }
-
 var _ grpc.ClientConnInterface = &ClientConn{}
 
 type ClientConn struct {

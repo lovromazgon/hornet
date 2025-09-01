@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
 	"reflect"
@@ -28,21 +29,6 @@ type serverOptions struct {
 
 var defaultServerOptions = serverOptions{
 	logger: slog.Default(),
-}
-
-type ServerOption interface {
-	applyServer(*serverOptions)
-}
-
-// funcServerOption wraps a function that modifies serverOptions into an
-// implementation of the ServerOption interface.
-type funcServerOption func(*serverOptions)
-
-func (f funcServerOption) applyServer(so *serverOptions) { f(so) }
-
-// WithLogger returns a ServerOption that can set the logger for the server.
-func WithLogger(l *slog.Logger) ServerOption {
-	return funcServerOption(func(o *serverOptions) { o.logger = l })
 }
 
 var _ grpc.ServiceRegistrar = (*Server)(nil)
@@ -179,4 +165,31 @@ func (s *Server) handleError(st *status.Status, args ...any) []byte {
 	}
 
 	return out
+}
+
+func protoMarshalAppend(data []byte, v any) ([]byte, error) {
+	msg, ok := v.(proto.Message)
+	if !ok {
+		return data, fmt.Errorf("proto: error marshalling data: expected proto.Message, got %T", v)
+	}
+
+	data, err := proto.MarshalOptions{}.MarshalAppend(data, msg)
+	if err != nil {
+		return data, fmt.Errorf("proto: error marshalling data: %w", err)
+	}
+
+	return data, nil
+}
+
+func protoUnmarshal(data []byte, v any) error {
+	msg, ok := v.(proto.Message)
+	if !ok {
+		return fmt.Errorf("proto: error unmarshalling data: expected proto.Message, got %T", v)
+	}
+	err := proto.Unmarshal(data, msg)
+	if err != nil {
+		return fmt.Errorf("proto: error unmarshalling data: %w", err)
+	}
+
+	return nil
 }
