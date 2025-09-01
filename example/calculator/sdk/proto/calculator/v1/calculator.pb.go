@@ -21,26 +21,28 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Add struct {
+type AddRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	A             int64                  `protobuf:"varint,1,opt,name=a,proto3" json:"a,omitempty"`
+	B             int64                  `protobuf:"varint,2,opt,name=b,proto3" json:"b,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Add) Reset() {
-	*x = Add{}
+func (x *AddRequest) Reset() {
+	*x = AddRequest{}
 	mi := &file_calculator_v1_calculator_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Add) String() string {
+func (x *AddRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Add) ProtoMessage() {}
+func (*AddRequest) ProtoMessage() {}
 
-func (x *Add) ProtoReflect() protoreflect.Message {
+func (x *AddRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_calculator_v1_calculator_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -52,31 +54,46 @@ func (x *Add) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Add.ProtoReflect.Descriptor instead.
-func (*Add) Descriptor() ([]byte, []int) {
+// Deprecated: Use AddRequest.ProtoReflect.Descriptor instead.
+func (*AddRequest) Descriptor() ([]byte, []int) {
 	return file_calculator_v1_calculator_proto_rawDescGZIP(), []int{0}
 }
 
-type Sub struct {
+func (x *AddRequest) GetA() int64 {
+	if x != nil {
+		return x.A
+	}
+	return 0
+}
+
+func (x *AddRequest) GetB() int64 {
+	if x != nil {
+		return x.B
+	}
+	return 0
+}
+
+type AddResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	C             int64                  `protobuf:"varint,1,opt,name=c,proto3" json:"c,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Sub) Reset() {
-	*x = Sub{}
+func (x *AddResponse) Reset() {
+	*x = AddResponse{}
 	mi := &file_calculator_v1_calculator_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Sub) String() string {
+func (x *AddResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Sub) ProtoMessage() {}
+func (*AddResponse) ProtoMessage() {}
 
-func (x *Sub) ProtoReflect() protoreflect.Message {
+func (x *AddResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_calculator_v1_calculator_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -88,31 +105,40 @@ func (x *Sub) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Sub.ProtoReflect.Descriptor instead.
-func (*Sub) Descriptor() ([]byte, []int) {
+// Deprecated: Use AddResponse.ProtoReflect.Descriptor instead.
+func (*AddResponse) Descriptor() ([]byte, []int) {
 	return file_calculator_v1_calculator_proto_rawDescGZIP(), []int{1}
 }
 
-type Mul struct {
+func (x *AddResponse) GetC() int64 {
+	if x != nil {
+		return x.C
+	}
+	return 0
+}
+
+type SubRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	A             int64                  `protobuf:"varint,1,opt,name=a,proto3" json:"a,omitempty"`
+	B             int64                  `protobuf:"varint,2,opt,name=b,proto3" json:"b,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Mul) Reset() {
-	*x = Mul{}
+func (x *SubRequest) Reset() {
+	*x = SubRequest{}
 	mi := &file_calculator_v1_calculator_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Mul) String() string {
+func (x *SubRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Mul) ProtoMessage() {}
+func (*SubRequest) ProtoMessage() {}
 
-func (x *Mul) ProtoReflect() protoreflect.Message {
+func (x *SubRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_calculator_v1_calculator_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -124,31 +150,46 @@ func (x *Mul) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Mul.ProtoReflect.Descriptor instead.
-func (*Mul) Descriptor() ([]byte, []int) {
+// Deprecated: Use SubRequest.ProtoReflect.Descriptor instead.
+func (*SubRequest) Descriptor() ([]byte, []int) {
 	return file_calculator_v1_calculator_proto_rawDescGZIP(), []int{2}
 }
 
-type Div struct {
+func (x *SubRequest) GetA() int64 {
+	if x != nil {
+		return x.A
+	}
+	return 0
+}
+
+func (x *SubRequest) GetB() int64 {
+	if x != nil {
+		return x.B
+	}
+	return 0
+}
+
+type SubResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	C             int64                  `protobuf:"varint,1,opt,name=c,proto3" json:"c,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Div) Reset() {
-	*x = Div{}
+func (x *SubResponse) Reset() {
+	*x = SubResponse{}
 	mi := &file_calculator_v1_calculator_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Div) String() string {
+func (x *SubResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Div) ProtoMessage() {}
+func (*SubResponse) ProtoMessage() {}
 
-func (x *Div) ProtoReflect() protoreflect.Message {
+func (x *SubResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_calculator_v1_calculator_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -160,12 +201,19 @@ func (x *Div) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Div.ProtoReflect.Descriptor instead.
-func (*Div) Descriptor() ([]byte, []int) {
+// Deprecated: Use SubResponse.ProtoReflect.Descriptor instead.
+func (*SubResponse) Descriptor() ([]byte, []int) {
 	return file_calculator_v1_calculator_proto_rawDescGZIP(), []int{3}
 }
 
-type Add_Request struct {
+func (x *SubResponse) GetC() int64 {
+	if x != nil {
+		return x.C
+	}
+	return 0
+}
+
+type MulRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	A             int64                  `protobuf:"varint,1,opt,name=a,proto3" json:"a,omitempty"`
 	B             int64                  `protobuf:"varint,2,opt,name=b,proto3" json:"b,omitempty"`
@@ -173,20 +221,20 @@ type Add_Request struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Add_Request) Reset() {
-	*x = Add_Request{}
+func (x *MulRequest) Reset() {
+	*x = MulRequest{}
 	mi := &file_calculator_v1_calculator_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Add_Request) String() string {
+func (x *MulRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Add_Request) ProtoMessage() {}
+func (*MulRequest) ProtoMessage() {}
 
-func (x *Add_Request) ProtoReflect() protoreflect.Message {
+func (x *MulRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_calculator_v1_calculator_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -198,46 +246,46 @@ func (x *Add_Request) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Add_Request.ProtoReflect.Descriptor instead.
-func (*Add_Request) Descriptor() ([]byte, []int) {
-	return file_calculator_v1_calculator_proto_rawDescGZIP(), []int{0, 0}
+// Deprecated: Use MulRequest.ProtoReflect.Descriptor instead.
+func (*MulRequest) Descriptor() ([]byte, []int) {
+	return file_calculator_v1_calculator_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *Add_Request) GetA() int64 {
+func (x *MulRequest) GetA() int64 {
 	if x != nil {
 		return x.A
 	}
 	return 0
 }
 
-func (x *Add_Request) GetB() int64 {
+func (x *MulRequest) GetB() int64 {
 	if x != nil {
 		return x.B
 	}
 	return 0
 }
 
-type Add_Response struct {
+type MulResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	C             int64                  `protobuf:"varint,1,opt,name=c,proto3" json:"c,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Add_Response) Reset() {
-	*x = Add_Response{}
+func (x *MulResponse) Reset() {
+	*x = MulResponse{}
 	mi := &file_calculator_v1_calculator_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Add_Response) String() string {
+func (x *MulResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Add_Response) ProtoMessage() {}
+func (*MulResponse) ProtoMessage() {}
 
-func (x *Add_Response) ProtoReflect() protoreflect.Message {
+func (x *MulResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_calculator_v1_calculator_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -249,19 +297,19 @@ func (x *Add_Response) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Add_Response.ProtoReflect.Descriptor instead.
-func (*Add_Response) Descriptor() ([]byte, []int) {
-	return file_calculator_v1_calculator_proto_rawDescGZIP(), []int{0, 1}
+// Deprecated: Use MulResponse.ProtoReflect.Descriptor instead.
+func (*MulResponse) Descriptor() ([]byte, []int) {
+	return file_calculator_v1_calculator_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *Add_Response) GetC() int64 {
+func (x *MulResponse) GetC() int64 {
 	if x != nil {
 		return x.C
 	}
 	return 0
 }
 
-type Sub_Request struct {
+type DivRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	A             int64                  `protobuf:"varint,1,opt,name=a,proto3" json:"a,omitempty"`
 	B             int64                  `protobuf:"varint,2,opt,name=b,proto3" json:"b,omitempty"`
@@ -269,20 +317,20 @@ type Sub_Request struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Sub_Request) Reset() {
-	*x = Sub_Request{}
+func (x *DivRequest) Reset() {
+	*x = DivRequest{}
 	mi := &file_calculator_v1_calculator_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Sub_Request) String() string {
+func (x *DivRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Sub_Request) ProtoMessage() {}
+func (*DivRequest) ProtoMessage() {}
 
-func (x *Sub_Request) ProtoReflect() protoreflect.Message {
+func (x *DivRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_calculator_v1_calculator_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -294,46 +342,46 @@ func (x *Sub_Request) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Sub_Request.ProtoReflect.Descriptor instead.
-func (*Sub_Request) Descriptor() ([]byte, []int) {
-	return file_calculator_v1_calculator_proto_rawDescGZIP(), []int{1, 0}
+// Deprecated: Use DivRequest.ProtoReflect.Descriptor instead.
+func (*DivRequest) Descriptor() ([]byte, []int) {
+	return file_calculator_v1_calculator_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *Sub_Request) GetA() int64 {
+func (x *DivRequest) GetA() int64 {
 	if x != nil {
 		return x.A
 	}
 	return 0
 }
 
-func (x *Sub_Request) GetB() int64 {
+func (x *DivRequest) GetB() int64 {
 	if x != nil {
 		return x.B
 	}
 	return 0
 }
 
-type Sub_Response struct {
+type DivResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	C             int64                  `protobuf:"varint,1,opt,name=c,proto3" json:"c,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Sub_Response) Reset() {
-	*x = Sub_Response{}
+func (x *DivResponse) Reset() {
+	*x = DivResponse{}
 	mi := &file_calculator_v1_calculator_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Sub_Response) String() string {
+func (x *DivResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Sub_Response) ProtoMessage() {}
+func (*DivResponse) ProtoMessage() {}
 
-func (x *Sub_Response) ProtoReflect() protoreflect.Message {
+func (x *DivResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_calculator_v1_calculator_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -345,204 +393,12 @@ func (x *Sub_Response) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Sub_Response.ProtoReflect.Descriptor instead.
-func (*Sub_Response) Descriptor() ([]byte, []int) {
-	return file_calculator_v1_calculator_proto_rawDescGZIP(), []int{1, 1}
+// Deprecated: Use DivResponse.ProtoReflect.Descriptor instead.
+func (*DivResponse) Descriptor() ([]byte, []int) {
+	return file_calculator_v1_calculator_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *Sub_Response) GetC() int64 {
-	if x != nil {
-		return x.C
-	}
-	return 0
-}
-
-type Mul_Request struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	A             int64                  `protobuf:"varint,1,opt,name=a,proto3" json:"a,omitempty"`
-	B             int64                  `protobuf:"varint,2,opt,name=b,proto3" json:"b,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Mul_Request) Reset() {
-	*x = Mul_Request{}
-	mi := &file_calculator_v1_calculator_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Mul_Request) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Mul_Request) ProtoMessage() {}
-
-func (x *Mul_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_calculator_v1_calculator_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Mul_Request.ProtoReflect.Descriptor instead.
-func (*Mul_Request) Descriptor() ([]byte, []int) {
-	return file_calculator_v1_calculator_proto_rawDescGZIP(), []int{2, 0}
-}
-
-func (x *Mul_Request) GetA() int64 {
-	if x != nil {
-		return x.A
-	}
-	return 0
-}
-
-func (x *Mul_Request) GetB() int64 {
-	if x != nil {
-		return x.B
-	}
-	return 0
-}
-
-type Mul_Response struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	C             int64                  `protobuf:"varint,1,opt,name=c,proto3" json:"c,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Mul_Response) Reset() {
-	*x = Mul_Response{}
-	mi := &file_calculator_v1_calculator_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Mul_Response) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Mul_Response) ProtoMessage() {}
-
-func (x *Mul_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_calculator_v1_calculator_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Mul_Response.ProtoReflect.Descriptor instead.
-func (*Mul_Response) Descriptor() ([]byte, []int) {
-	return file_calculator_v1_calculator_proto_rawDescGZIP(), []int{2, 1}
-}
-
-func (x *Mul_Response) GetC() int64 {
-	if x != nil {
-		return x.C
-	}
-	return 0
-}
-
-type Div_Request struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	A             int64                  `protobuf:"varint,1,opt,name=a,proto3" json:"a,omitempty"`
-	B             int64                  `protobuf:"varint,2,opt,name=b,proto3" json:"b,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Div_Request) Reset() {
-	*x = Div_Request{}
-	mi := &file_calculator_v1_calculator_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Div_Request) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Div_Request) ProtoMessage() {}
-
-func (x *Div_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_calculator_v1_calculator_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Div_Request.ProtoReflect.Descriptor instead.
-func (*Div_Request) Descriptor() ([]byte, []int) {
-	return file_calculator_v1_calculator_proto_rawDescGZIP(), []int{3, 0}
-}
-
-func (x *Div_Request) GetA() int64 {
-	if x != nil {
-		return x.A
-	}
-	return 0
-}
-
-func (x *Div_Request) GetB() int64 {
-	if x != nil {
-		return x.B
-	}
-	return 0
-}
-
-type Div_Response struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	C             int64                  `protobuf:"varint,1,opt,name=c,proto3" json:"c,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Div_Response) Reset() {
-	*x = Div_Response{}
-	mi := &file_calculator_v1_calculator_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Div_Response) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Div_Response) ProtoMessage() {}
-
-func (x *Div_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_calculator_v1_calculator_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Div_Response.ProtoReflect.Descriptor instead.
-func (*Div_Response) Descriptor() ([]byte, []int) {
-	return file_calculator_v1_calculator_proto_rawDescGZIP(), []int{3, 1}
-}
-
-func (x *Div_Response) GetC() int64 {
+func (x *DivResponse) GetC() int64 {
 	if x != nil {
 		return x.C
 	}
@@ -553,37 +409,36 @@ var File_calculator_v1_calculator_proto protoreflect.FileDescriptor
 
 const file_calculator_v1_calculator_proto_rawDesc = "" +
 	"\n" +
-	"\x1ecalculator/v1/calculator.proto\x12\rcalculator.v1\"F\n" +
-	"\x03Add\x1a%\n" +
-	"\aRequest\x12\f\n" +
-	"\x01a\x18\x01 \x01(\x03R\x01a\x12\f\n" +
-	"\x01b\x18\x02 \x01(\x03R\x01b\x1a\x18\n" +
-	"\bResponse\x12\f\n" +
-	"\x01c\x18\x01 \x01(\x03R\x01c\"F\n" +
-	"\x03Sub\x1a%\n" +
-	"\aRequest\x12\f\n" +
-	"\x01a\x18\x01 \x01(\x03R\x01a\x12\f\n" +
-	"\x01b\x18\x02 \x01(\x03R\x01b\x1a\x18\n" +
-	"\bResponse\x12\f\n" +
-	"\x01c\x18\x01 \x01(\x03R\x01c\"F\n" +
-	"\x03Mul\x1a%\n" +
-	"\aRequest\x12\f\n" +
-	"\x01a\x18\x01 \x01(\x03R\x01a\x12\f\n" +
-	"\x01b\x18\x02 \x01(\x03R\x01b\x1a\x18\n" +
-	"\bResponse\x12\f\n" +
-	"\x01c\x18\x01 \x01(\x03R\x01c\"F\n" +
-	"\x03Div\x1a%\n" +
-	"\aRequest\x12\f\n" +
-	"\x01a\x18\x01 \x01(\x03R\x01a\x12\f\n" +
-	"\x01b\x18\x02 \x01(\x03R\x01b\x1a\x18\n" +
-	"\bResponse\x12\f\n" +
-	"\x01c\x18\x01 \x01(\x03R\x01c2\x8c\x02\n" +
+	"\x1ecalculator/v1/calculator.proto\x12\rcalculator.v1\"(\n" +
 	"\n" +
-	"Calculator\x12>\n" +
-	"\x03Add\x12\x1a.calculator.v1.Add.Request\x1a\x1b.calculator.v1.Add.Response\x12>\n" +
-	"\x03Sub\x12\x1a.calculator.v1.Sub.Request\x1a\x1b.calculator.v1.Sub.Response\x12>\n" +
-	"\x03Mul\x12\x1a.calculator.v1.Mul.Request\x1a\x1b.calculator.v1.Mul.Response\x12>\n" +
-	"\x03Div\x12\x1a.calculator.v1.Div.Request\x1a\x1b.calculator.v1.Div.ResponseB\xd0\x01\n" +
+	"AddRequest\x12\f\n" +
+	"\x01a\x18\x01 \x01(\x03R\x01a\x12\f\n" +
+	"\x01b\x18\x02 \x01(\x03R\x01b\"\x1b\n" +
+	"\vAddResponse\x12\f\n" +
+	"\x01c\x18\x01 \x01(\x03R\x01c\"(\n" +
+	"\n" +
+	"SubRequest\x12\f\n" +
+	"\x01a\x18\x01 \x01(\x03R\x01a\x12\f\n" +
+	"\x01b\x18\x02 \x01(\x03R\x01b\"\x1b\n" +
+	"\vSubResponse\x12\f\n" +
+	"\x01c\x18\x01 \x01(\x03R\x01c\"(\n" +
+	"\n" +
+	"MulRequest\x12\f\n" +
+	"\x01a\x18\x01 \x01(\x03R\x01a\x12\f\n" +
+	"\x01b\x18\x02 \x01(\x03R\x01b\"\x1b\n" +
+	"\vMulResponse\x12\f\n" +
+	"\x01c\x18\x01 \x01(\x03R\x01c\"(\n" +
+	"\n" +
+	"DivRequest\x12\f\n" +
+	"\x01a\x18\x01 \x01(\x03R\x01a\x12\f\n" +
+	"\x01b\x18\x02 \x01(\x03R\x01b\"\x1b\n" +
+	"\vDivResponse\x12\f\n" +
+	"\x01c\x18\x01 \x01(\x03R\x01c2\x8a\x02\n" +
+	"\x10CalculatorPlugin\x12<\n" +
+	"\x03Add\x12\x19.calculator.v1.AddRequest\x1a\x1a.calculator.v1.AddResponse\x12<\n" +
+	"\x03Sub\x12\x19.calculator.v1.SubRequest\x1a\x1a.calculator.v1.SubResponse\x12<\n" +
+	"\x03Mul\x12\x19.calculator.v1.MulRequest\x1a\x1a.calculator.v1.MulResponse\x12<\n" +
+	"\x03Div\x12\x19.calculator.v1.DivRequest\x1a\x1a.calculator.v1.DivResponseB\xd0\x01\n" +
 	"\x11com.calculator.v1B\x0fCalculatorProtoP\x01ZUgithub.com/lovromazgon/hornet/example/calculator/sdk/proto/calculator/v1;calculatorv1\xa2\x02\x03CXX\xaa\x02\rCalculator.V1\xca\x02\rCalculator\\V1\xe2\x02\x19Calculator\\V1\\GPBMetadata\xea\x02\x0eCalculator::V1b\x06proto3"
 
 var (
@@ -598,35 +453,31 @@ func file_calculator_v1_calculator_proto_rawDescGZIP() []byte {
 	return file_calculator_v1_calculator_proto_rawDescData
 }
 
-var file_calculator_v1_calculator_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_calculator_v1_calculator_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_calculator_v1_calculator_proto_goTypes = []any{
-	(*Add)(nil),          // 0: calculator.v1.Add
-	(*Sub)(nil),          // 1: calculator.v1.Sub
-	(*Mul)(nil),          // 2: calculator.v1.Mul
-	(*Div)(nil),          // 3: calculator.v1.Div
-	(*Add_Request)(nil),  // 4: calculator.v1.Add.Request
-	(*Add_Response)(nil), // 5: calculator.v1.Add.Response
-	(*Sub_Request)(nil),  // 6: calculator.v1.Sub.Request
-	(*Sub_Response)(nil), // 7: calculator.v1.Sub.Response
-	(*Mul_Request)(nil),  // 8: calculator.v1.Mul.Request
-	(*Mul_Response)(nil), // 9: calculator.v1.Mul.Response
-	(*Div_Request)(nil),  // 10: calculator.v1.Div.Request
-	(*Div_Response)(nil), // 11: calculator.v1.Div.Response
+	(*AddRequest)(nil),  // 0: calculator.v1.AddRequest
+	(*AddResponse)(nil), // 1: calculator.v1.AddResponse
+	(*SubRequest)(nil),  // 2: calculator.v1.SubRequest
+	(*SubResponse)(nil), // 3: calculator.v1.SubResponse
+	(*MulRequest)(nil),  // 4: calculator.v1.MulRequest
+	(*MulResponse)(nil), // 5: calculator.v1.MulResponse
+	(*DivRequest)(nil),  // 6: calculator.v1.DivRequest
+	(*DivResponse)(nil), // 7: calculator.v1.DivResponse
 }
 var file_calculator_v1_calculator_proto_depIdxs = []int32{
-	4,  // 0: calculator.v1.Calculator.Add:input_type -> calculator.v1.Add.Request
-	6,  // 1: calculator.v1.Calculator.Sub:input_type -> calculator.v1.Sub.Request
-	8,  // 2: calculator.v1.Calculator.Mul:input_type -> calculator.v1.Mul.Request
-	10, // 3: calculator.v1.Calculator.Div:input_type -> calculator.v1.Div.Request
-	5,  // 4: calculator.v1.Calculator.Add:output_type -> calculator.v1.Add.Response
-	7,  // 5: calculator.v1.Calculator.Sub:output_type -> calculator.v1.Sub.Response
-	9,  // 6: calculator.v1.Calculator.Mul:output_type -> calculator.v1.Mul.Response
-	11, // 7: calculator.v1.Calculator.Div:output_type -> calculator.v1.Div.Response
-	4,  // [4:8] is the sub-list for method output_type
-	0,  // [0:4] is the sub-list for method input_type
-	0,  // [0:0] is the sub-list for extension type_name
-	0,  // [0:0] is the sub-list for extension extendee
-	0,  // [0:0] is the sub-list for field type_name
+	0, // 0: calculator.v1.CalculatorPlugin.Add:input_type -> calculator.v1.AddRequest
+	2, // 1: calculator.v1.CalculatorPlugin.Sub:input_type -> calculator.v1.SubRequest
+	4, // 2: calculator.v1.CalculatorPlugin.Mul:input_type -> calculator.v1.MulRequest
+	6, // 3: calculator.v1.CalculatorPlugin.Div:input_type -> calculator.v1.DivRequest
+	1, // 4: calculator.v1.CalculatorPlugin.Add:output_type -> calculator.v1.AddResponse
+	3, // 5: calculator.v1.CalculatorPlugin.Sub:output_type -> calculator.v1.SubResponse
+	5, // 6: calculator.v1.CalculatorPlugin.Mul:output_type -> calculator.v1.MulResponse
+	7, // 7: calculator.v1.CalculatorPlugin.Div:output_type -> calculator.v1.DivResponse
+	4, // [4:8] is the sub-list for method output_type
+	0, // [0:4] is the sub-list for method input_type
+	0, // [0:0] is the sub-list for extension type_name
+	0, // [0:0] is the sub-list for extension extendee
+	0, // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_calculator_v1_calculator_proto_init() }
@@ -640,7 +491,7 @@ func file_calculator_v1_calculator_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_calculator_v1_calculator_proto_rawDesc), len(file_calculator_v1_calculator_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

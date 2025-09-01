@@ -1,13 +1,4 @@
-#TODO migrate to v2
-version: v1
+version: v2
 name: buf.build/lovromazgon/hornet
 lint:
   service_suffix: Plugin
-  use:
-    - STANDARD
-  except:
-    - RPC_REQUEST_STANDARD_NAME
-    - RPC_RESPONSE_STANDARD_NAME
-breaking:
-  use:
-    - FILE

@@ -19,215 +19,215 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Calculator_Add_FullMethodName = "/calculator.v1.Calculator/Add"
-	Calculator_Sub_FullMethodName = "/calculator.v1.Calculator/Sub"
-	Calculator_Mul_FullMethodName = "/calculator.v1.Calculator/Mul"
-	Calculator_Div_FullMethodName = "/calculator.v1.Calculator/Div"
+	CalculatorPlugin_Add_FullMethodName = "/calculator.v1.CalculatorPlugin/Add"
+	CalculatorPlugin_Sub_FullMethodName = "/calculator.v1.CalculatorPlugin/Sub"
+	CalculatorPlugin_Mul_FullMethodName = "/calculator.v1.CalculatorPlugin/Mul"
+	CalculatorPlugin_Div_FullMethodName = "/calculator.v1.CalculatorPlugin/Div"
 )
 
-// CalculatorClient is the client API for Calculator service.
+// CalculatorPluginClient is the client API for CalculatorPlugin service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type CalculatorClient interface {
-	Add(ctx context.Context, in *Add_Request, opts ...grpc.CallOption) (*Add_Response, error)
-	Sub(ctx context.Context, in *Sub_Request, opts ...grpc.CallOption) (*Sub_Response, error)
-	Mul(ctx context.Context, in *Mul_Request, opts ...grpc.CallOption) (*Mul_Response, error)
-	Div(ctx context.Context, in *Div_Request, opts ...grpc.CallOption) (*Div_Response, error)
+type CalculatorPluginClient interface {
+	Add(ctx context.Context, in *AddRequest, opts ...grpc.CallOption) (*AddResponse, error)
+	Sub(ctx context.Context, in *SubRequest, opts ...grpc.CallOption) (*SubResponse, error)
+	Mul(ctx context.Context, in *MulRequest, opts ...grpc.CallOption) (*MulResponse, error)
+	Div(ctx context.Context, in *DivRequest, opts ...grpc.CallOption) (*DivResponse, error)
 }
 
-type calculatorClient struct {
+type calculatorPluginClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewCalculatorClient(cc grpc.ClientConnInterface) CalculatorClient {
-	return &calculatorClient{cc}
+func NewCalculatorPluginClient(cc grpc.ClientConnInterface) CalculatorPluginClient {
+	return &calculatorPluginClient{cc}
 }
 
-func (c *calculatorClient) Add(ctx context.Context, in *Add_Request, opts ...grpc.CallOption) (*Add_Response, error) {
+func (c *calculatorPluginClient) Add(ctx context.Context, in *AddRequest, opts ...grpc.CallOption) (*AddResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Add_Response)
-	err := c.cc.Invoke(ctx, Calculator_Add_FullMethodName, in, out, cOpts...)
+	out := new(AddResponse)
+	err := c.cc.Invoke(ctx, CalculatorPlugin_Add_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *calculatorClient) Sub(ctx context.Context, in *Sub_Request, opts ...grpc.CallOption) (*Sub_Response, error) {
+func (c *calculatorPluginClient) Sub(ctx context.Context, in *SubRequest, opts ...grpc.CallOption) (*SubResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Sub_Response)
-	err := c.cc.Invoke(ctx, Calculator_Sub_FullMethodName, in, out, cOpts...)
+	out := new(SubResponse)
+	err := c.cc.Invoke(ctx, CalculatorPlugin_Sub_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *calculatorClient) Mul(ctx context.Context, in *Mul_Request, opts ...grpc.CallOption) (*Mul_Response, error) {
+func (c *calculatorPluginClient) Mul(ctx context.Context, in *MulRequest, opts ...grpc.CallOption) (*MulResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Mul_Response)
-	err := c.cc.Invoke(ctx, Calculator_Mul_FullMethodName, in, out, cOpts...)
+	out := new(MulResponse)
+	err := c.cc.Invoke(ctx, CalculatorPlugin_Mul_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *calculatorClient) Div(ctx context.Context, in *Div_Request, opts ...grpc.CallOption) (*Div_Response, error) {
+func (c *calculatorPluginClient) Div(ctx context.Context, in *DivRequest, opts ...grpc.CallOption) (*DivResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Div_Response)
-	err := c.cc.Invoke(ctx, Calculator_Div_FullMethodName, in, out, cOpts...)
+	out := new(DivResponse)
+	err := c.cc.Invoke(ctx, CalculatorPlugin_Div_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// CalculatorServer is the server API for Calculator service.
-// All implementations must embed UnimplementedCalculatorServer
+// CalculatorPluginServer is the server API for CalculatorPlugin service.
+// All implementations must embed UnimplementedCalculatorPluginServer
 // for forward compatibility.
-type CalculatorServer interface {
-	Add(context.Context, *Add_Request) (*Add_Response, error)
-	Sub(context.Context, *Sub_Request) (*Sub_Response, error)
-	Mul(context.Context, *Mul_Request) (*Mul_Response, error)
-	Div(context.Context, *Div_Request) (*Div_Response, error)
-	mustEmbedUnimplementedCalculatorServer()
+type CalculatorPluginServer interface {
+	Add(context.Context, *AddRequest) (*AddResponse, error)
+	Sub(context.Context, *SubRequest) (*SubResponse, error)
+	Mul(context.Context, *MulRequest) (*MulResponse, error)
+	Div(context.Context, *DivRequest) (*DivResponse, error)
+	mustEmbedUnimplementedCalculatorPluginServer()
 }
 
-// UnimplementedCalculatorServer must be embedded to have
+// UnimplementedCalculatorPluginServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedCalculatorServer struct{}
+type UnimplementedCalculatorPluginServer struct{}
 
-func (UnimplementedCalculatorServer) Add(context.Context, *Add_Request) (*Add_Response, error) {
+func (UnimplementedCalculatorPluginServer) Add(context.Context, *AddRequest) (*AddResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Add not implemented")
 }
-func (UnimplementedCalculatorServer) Sub(context.Context, *Sub_Request) (*Sub_Response, error) {
+func (UnimplementedCalculatorPluginServer) Sub(context.Context, *SubRequest) (*SubResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Sub not implemented")
 }
-func (UnimplementedCalculatorServer) Mul(context.Context, *Mul_Request) (*Mul_Response, error) {
+func (UnimplementedCalculatorPluginServer) Mul(context.Context, *MulRequest) (*MulResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Mul not implemented")
 }
-func (UnimplementedCalculatorServer) Div(context.Context, *Div_Request) (*Div_Response, error) {
+func (UnimplementedCalculatorPluginServer) Div(context.Context, *DivRequest) (*DivResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Div not implemented")
 }
-func (UnimplementedCalculatorServer) mustEmbedUnimplementedCalculatorServer() {}
-func (UnimplementedCalculatorServer) testEmbeddedByValue()                    {}
+func (UnimplementedCalculatorPluginServer) mustEmbedUnimplementedCalculatorPluginServer() {}
+func (UnimplementedCalculatorPluginServer) testEmbeddedByValue()                          {}
 
-// UnsafeCalculatorServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to CalculatorServer will
+// UnsafeCalculatorPluginServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CalculatorPluginServer will
 // result in compilation errors.
-type UnsafeCalculatorServer interface {
-	mustEmbedUnimplementedCalculatorServer()
+type UnsafeCalculatorPluginServer interface {
+	mustEmbedUnimplementedCalculatorPluginServer()
 }
 
-func RegisterCalculatorServer(s grpc.ServiceRegistrar, srv CalculatorServer) {
-	// If the following call pancis, it indicates UnimplementedCalculatorServer was
+func RegisterCalculatorPluginServer(s grpc.ServiceRegistrar, srv CalculatorPluginServer) {
+	// If the following call pancis, it indicates UnimplementedCalculatorPluginServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&Calculator_ServiceDesc, srv)
+	s.RegisterService(&CalculatorPlugin_ServiceDesc, srv)
 }
 
-func _Calculator_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Add_Request)
+func _CalculatorPlugin_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CalculatorServer).Add(ctx, in)
+		return srv.(CalculatorPluginServer).Add(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Calculator_Add_FullMethodName,
+		FullMethod: CalculatorPlugin_Add_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CalculatorServer).Add(ctx, req.(*Add_Request))
+		return srv.(CalculatorPluginServer).Add(ctx, req.(*AddRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Calculator_Sub_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Sub_Request)
+func _CalculatorPlugin_Sub_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CalculatorServer).Sub(ctx, in)
+		return srv.(CalculatorPluginServer).Sub(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Calculator_Sub_FullMethodName,
+		FullMethod: CalculatorPlugin_Sub_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CalculatorServer).Sub(ctx, req.(*Sub_Request))
+		return srv.(CalculatorPluginServer).Sub(ctx, req.(*SubRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Calculator_Mul_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Mul_Request)
+func _CalculatorPlugin_Mul_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MulRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CalculatorServer).Mul(ctx, in)
+		return srv.(CalculatorPluginServer).Mul(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Calculator_Mul_FullMethodName,
+		FullMethod: CalculatorPlugin_Mul_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CalculatorServer).Mul(ctx, req.(*Mul_Request))
+		return srv.(CalculatorPluginServer).Mul(ctx, req.(*MulRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Calculator_Div_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Div_Request)
+func _CalculatorPlugin_Div_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DivRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CalculatorServer).Div(ctx, in)
+		return srv.(CalculatorPluginServer).Div(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Calculator_Div_FullMethodName,
+		FullMethod: CalculatorPlugin_Div_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CalculatorServer).Div(ctx, req.(*Div_Request))
+		return srv.(CalculatorPluginServer).Div(ctx, req.(*DivRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Calculator_ServiceDesc is the grpc.ServiceDesc for Calculator service.
+// CalculatorPlugin_ServiceDesc is the grpc.ServiceDesc for CalculatorPlugin service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Calculator_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "calculator.v1.Calculator",
-	HandlerType: (*CalculatorServer)(nil),
+var CalculatorPlugin_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "calculator.v1.CalculatorPlugin",
+	HandlerType: (*CalculatorPluginServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Add",
-			Handler:    _Calculator_Add_Handler,
+			Handler:    _CalculatorPlugin_Add_Handler,
 		},
 		{
 			MethodName: "Sub",
-			Handler:    _Calculator_Sub_Handler,
+			Handler:    _CalculatorPlugin_Sub_Handler,
 		},
 		{
 			MethodName: "Mul",
-			Handler:    _Calculator_Mul_Handler,
+			Handler:    _CalculatorPlugin_Mul_Handler,
 		},
 		{
 			MethodName: "Div",
-			Handler:    _Calculator_Div_Handler,
+			Handler:    _CalculatorPlugin_Div_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

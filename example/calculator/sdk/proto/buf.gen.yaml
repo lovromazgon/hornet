@@ -1,14 +1,15 @@
-version: v1
+version: v2
 managed:
   enabled: true
-  go_package_prefix:
-    default: "github.com/lovromazgon/hornet/example/calculator/sdk/proto"
+  override:
+    - file_option: "go_package_prefix"
+      value: "github.com/lovromazgon/hornet/example/calculator/sdk/proto"
 plugins:
-  - plugin: buf.build/protocolbuffers/go:v1.36.8
+  - remote: buf.build/protocolbuffers/go:v1.36.8
     out: .
     opt:
       - paths=source_relative
-  - plugin: buf.build/grpc/go:v1.5.1
+  - remote: buf.build/grpc/go:v1.5.1
     out: .
     opt:
       - paths=source_relative
