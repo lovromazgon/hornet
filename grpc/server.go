@@ -162,9 +162,10 @@ func (s *Server) Handle(fn string, reqBytes []byte) []byte {
 }
 
 func (s *Server) handleError(st *status.Status, args ...any) []byte {
-	s.opts.logger.Error("proto: Server.Handle "+st.Message(), args...)
+	s.opts.logger.Debug("ERROR: proto: Server.Handle "+st.Message(), args...)
 
-	out, err := proto.Marshal(st.Proto())
+	// The first byte tells the client if it's an error or a valid response.
+	out, err := proto.MarshalOptions{}.MarshalAppend([]byte{1}, st.Proto())
 	if err != nil {
 		panic(err)
 	}
@@ -178,6 +179,8 @@ func protoMarshalAppend(data []byte, v any) ([]byte, error) {
 		return data, fmt.Errorf("proto: error marshalling data: expected proto.Message, got %T", v)
 	}
 
+	// The first byte tells the client if it's an error or a valid response.
+	data = append(data, 0)
 	data, err := proto.MarshalOptions{}.MarshalAppend(data, msg)
 	if err != nil {
 		return data, fmt.Errorf("proto: error marshalling data: %w", err)

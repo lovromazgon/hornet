@@ -10,7 +10,9 @@ import (
 
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/api"
+	spb "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -142,20 +144,20 @@ func (c *ClientConn) invoke(
 
 		err := c.invokeMalloc(ctx, msgSize)
 		if err != nil {
-			return fmt.Errorf("failed to allocate memory in Wasm module: %w", err)
+			return err
 		}
 	}
 
 	// Step 2: Write request to the buffer in the Wasm module.
 	err := c.writeRequestToModule(method, req)
 	if err != nil {
-		return fmt.Errorf("failed to write request to Wasm module: %w", err)
+		return err
 	}
 
 	// Step 3: Call the Wasm command function.
 	err = c.invokeCommand(ctx, method, resp)
 	if err != nil {
-		return fmt.Errorf("failed to invoke command in Wasm module: %w", err)
+		return err
 	}
 
 	return nil
@@ -219,7 +221,20 @@ func (c *ClientConn) invokeCommand(ctx context.Context, method string, resp prot
 		return fmt.Errorf("failed to read from Wasm module memory at pointer %d with size %d", ptr, size)
 	}
 
-	if err := proto.Unmarshal(respBytes, resp); err != nil {
+	if len(respBytes) == 0 {
+		return fmt.Errorf("received empty response from Wasm module")
+	}
+
+	if respBytes[0] == 1 {
+		// Error response.
+		var st spb.Status
+		if err := proto.Unmarshal(respBytes[1:], &st); err != nil {
+			return fmt.Errorf("failed to unmarshal protobuf error response: %w", err)
+		}
+		return status.ErrorProto(&st)
+	}
+
+	if err := proto.Unmarshal(respBytes[1:], resp); err != nil {
 		return fmt.Errorf("failed to unmarshal protobuf command response: %w", err)
 	}
 

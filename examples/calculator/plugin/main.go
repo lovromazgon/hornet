@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/lovromazgon/hornet/examples/calculator/sdk"
@@ -47,6 +48,9 @@ func (c *Calculator) Mul(ctx context.Context, a, b int64) (int64, error) {
 }
 
 func (c *Calculator) Div(ctx context.Context, a, b int64) (int64, error) {
+	if b == 0 {
+		return 0, errors.New("division by zero")
+	}
 	r := a / b
 	fmt.Printf("%d / %d = %d\n", a, b, r)
 	return r, nil

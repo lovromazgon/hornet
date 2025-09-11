@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	calculatorv1 "github.com/lovromazgon/hornet/examples/calculator/sdk/proto/calculator/v1"
@@ -9,7 +10,11 @@ import (
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/api"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
+
+var ErrDivisionByZero = errors.New("division by zero")
 
 func InitializeModuleAndCalculator(
 	ctx context.Context,
@@ -65,6 +70,13 @@ func (c *calculatorClient) Mul(ctx context.Context, a, b int64) (int64, error) {
 func (c *calculatorClient) Div(ctx context.Context, a, b int64) (int64, error) {
 	out, err := c.client.Div(ctx, &calculatorv1.DivRequest{A: a, B: b})
 	if err != nil {
+		// Check if the error is a gRPC error with code InvalidArgument,
+		// which indicates a division by zero attempt.
+		// If so, return the predefined ErrDivisionByZero error.
+		st, ok := status.FromError(err)
+		if ok && st.Code() == codes.InvalidArgument {
+			return 0, ErrDivisionByZero
+		}
 		return 0, err
 	}
 
@@ -115,6 +127,13 @@ func (c *calculatorServer) Mul(ctx context.Context, req *calculatorv1.MulRequest
 }
 
 func (c *calculatorServer) Div(ctx context.Context, req *calculatorv1.DivRequest) (*calculatorv1.DivResponse, error) {
+	if req.GetB() == 0 {
+		// Return a gRPC InvalidArgument error if division by zero is attempted.
+		// The client can then check for this specific error and handle it
+		// accordingly.
+		return nil, status.Error(codes.InvalidArgument, ErrDivisionByZero.Error())
+	}
+
 	out, err := c.impl.Div(ctx, req.GetA(), req.GetB())
 	if err != nil {
 		return nil, err

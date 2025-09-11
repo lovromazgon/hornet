@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/rand"
 	"os"
@@ -86,10 +87,17 @@ func mul(ctx context.Context, calc sdk.Calculator) {
 
 func div(ctx context.Context, calc sdk.Calculator) {
 	a, b := randomNumbers()
-	b++ // avoid division by zero
+	if b > 50 {
+		// 50% chance to get division by zero error
+		b = 0
+	}
 
 	c, err := calc.Div(ctx, a, b)
 	if err != nil {
+		if errors.Is(err, sdk.ErrDivisionByZero) {
+			fmt.Printf("Div(%d, %d) error: %v\n", a, b, err)
+			return
+		}
 		panic(err)
 	}
 
