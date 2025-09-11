@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/lovromazgon/hornet/example/calculator/sdk"
+	"github.com/lovromazgon/hornet/examples/calculator/sdk"
 	"github.com/lovromazgon/hornet/grpc"
 	"github.com/lovromazgon/hornet/wasm"
 )

@@ -438,8 +438,8 @@ const file_calculator_v1_calculator_proto_rawDesc = "" +
 	"\x03Add\x12\x19.calculator.v1.AddRequest\x1a\x1a.calculator.v1.AddResponse\x12<\n" +
 	"\x03Sub\x12\x19.calculator.v1.SubRequest\x1a\x1a.calculator.v1.SubResponse\x12<\n" +
 	"\x03Mul\x12\x19.calculator.v1.MulRequest\x1a\x1a.calculator.v1.MulResponse\x12<\n" +
-	"\x03Div\x12\x19.calculator.v1.DivRequest\x1a\x1a.calculator.v1.DivResponseB\xd0\x01\n" +
-	"\x11com.calculator.v1B\x0fCalculatorProtoP\x01ZUgithub.com/lovromazgon/hornet/example/calculator/sdk/proto/calculator/v1;calculatorv1\xa2\x02\x03CXX\xaa\x02\rCalculator.V1\xca\x02\rCalculator\\V1\xe2\x02\x19Calculator\\V1\\GPBMetadata\xea\x02\x0eCalculator::V1b\x06proto3"
+	"\x03Div\x12\x19.calculator.v1.DivRequest\x1a\x1a.calculator.v1.DivResponseB\xd1\x01\n" +
+	"\x11com.calculator.v1B\x0fCalculatorProtoP\x01ZVgithub.com/lovromazgon/hornet/examples/calculator/sdk/proto/calculator/v1;calculatorv1\xa2\x02\x03CXX\xaa\x02\rCalculator.V1\xca\x02\rCalculator\\V1\xe2\x02\x19Calculator\\V1\\GPBMetadata\xea\x02\x0eCalculator::V1b\x06proto3"
 
 var (
 	file_calculator_v1_calculator_proto_rawDescOnce sync.Once

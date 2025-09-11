@@ -63,24 +63,26 @@ func (s *Server) RegisterService(sd *grpc.ServiceDesc, ss any) {
 		}
 	}
 
-	s.register(sd, ss)
+	err := s.register(sd, ss)
+	if err != nil {
+		s.opts.logger.Error("proto: Server.RegisterService failed", "error", err)
+		os.Exit(1) // That's what the original gRPC implementation does.
+	}
 }
 
-func (s *Server) register(sd *grpc.ServiceDesc, ss any) {
+func (s *Server) register(sd *grpc.ServiceDesc, ss any) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	s.opts.logger.Debug("Registering service", "service", sd.ServiceName)
-	// if s.serve {
-	// 	logger.Fatalf("grpc: Server.RegisterService after Server.Serve for %q", sd.ServiceName)
-	// }
+
 	if _, ok := s.services[sd.ServiceName]; ok {
-		s.opts.logger.Error("proto: Server.RegisterService found duplicate service registration", "service", sd.ServiceName)
-		os.Exit(1)
+		return fmt.Errorf("found duplicate service registration: %q", sd.ServiceName)
 	}
 
 	if len(sd.Streams) > 0 {
-		s.opts.logger.Warn("proto: Server.RegisterService found stream service, streams are not supported in Wasm plugins", "service", sd.ServiceName)
+		s.opts.logger.Warn("proto: Server.RegisterService found stream service, "+
+			"streams are not supported in Wasm plugins", "service", sd.ServiceName)
 	}
 
 	info := &serviceInfo{
@@ -94,6 +96,8 @@ func (s *Server) register(sd *grpc.ServiceDesc, ss any) {
 	}
 
 	s.services[sd.ServiceName] = info
+
+	return nil
 }
 
 // Handle implements the wasm.Handler interface and processes the bytes sent to
@@ -187,6 +191,7 @@ func protoUnmarshal(data []byte, v any) error {
 	if !ok {
 		return fmt.Errorf("proto: error unmarshalling data: expected proto.Message, got %T", v)
 	}
+
 	err := proto.Unmarshal(data, msg)
 	if err != nil {
 		return fmt.Errorf("proto: error unmarshalling data: %w", err)

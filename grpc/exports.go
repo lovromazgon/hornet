@@ -87,7 +87,11 @@ type functionDefinitionError struct {
 	gotResultTypes []api.ValueType // result types
 }
 
-func newFunctionDefinitionError(expected functionDefinition, gotParamTypes, gotResultTypes []api.ValueType) *functionDefinitionError {
+func newFunctionDefinitionError(
+	expected functionDefinition,
+	gotParamTypes,
+	gotResultTypes []api.ValueType,
+) *functionDefinitionError {
 	return &functionDefinitionError{
 		expected:       expected,
 		gotParamTypes:  gotParamTypes,

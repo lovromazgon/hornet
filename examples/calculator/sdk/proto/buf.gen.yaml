@@ -3,7 +3,7 @@ managed:
   enabled: true
   override:
     - file_option: "go_package_prefix"
-      value: "github.com/lovromazgon/hornet/example/calculator/sdk/proto"
+      value: "github.com/lovromazgon/hornet/examples/calculator/sdk/proto"
 plugins:
   - remote: buf.build/protocolbuffers/go:v1.36.8
     out: .

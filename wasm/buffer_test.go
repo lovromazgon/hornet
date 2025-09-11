@@ -81,7 +81,7 @@ func TestBuffer_PointerAndSize(t *testing.T) {
 		// This test simulates a 32-bit wasm architecture. On a 64-bit test host,
 		// we must compare the decoded 32-bit pointer value with the truncated
 		// original 64-bit pointer value.
-		is.Equal(decodedPtrVal, uint32(uintptr(b.Pointer())))
+		is.Equal(decodedPtrVal, uint32(b.Pointer()))
 		is.Equal(int(decodedSize), len(*b))
 		is.Equal(int(decodedSize), 256)
 	})

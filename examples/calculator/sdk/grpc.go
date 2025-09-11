@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	calculatorv1 "github.com/lovromazgon/hornet/example/calculator/sdk/proto/calculator/v1"
+	calculatorv1 "github.com/lovromazgon/hornet/examples/calculator/sdk/proto/calculator/v1"
 	hgrpc "github.com/lovromazgon/hornet/grpc"
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/api"

@@ -19,6 +19,7 @@ func newBuffer(size int) *buffer {
 // false.
 func (b *buffer) Grow(size int) bool {
 	allocated := false
+
 	if cap(*b) < size {
 		// This append logic preserves existing data when growing.
 		// We append to the end of the slice after expanding it to the full capacity.
@@ -30,6 +31,7 @@ func (b *buffer) Grow(size int) bool {
 	if len(*b) < size {
 		*b = (*b)[:size]
 	}
+
 	return allocated
 }
 

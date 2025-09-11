@@ -7,7 +7,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/lovromazgon/hornet/example/calculator/sdk"
+	"github.com/lovromazgon/hornet/examples/calculator/sdk"
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
 )
@@ -35,16 +35,19 @@ func main() {
 	defer module.Close(ctx)
 
 	var wg sync.WaitGroup
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		wg.Add(1)
+
 		go func() {
 			defer wg.Done()
+
 			add(ctx, calc)
 			sub(ctx, calc)
 			mul(ctx, calc)
 			div(ctx, calc)
 		}()
 	}
+
 	wg.Wait()
 }
 

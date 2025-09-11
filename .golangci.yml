@@ -3,12 +3,19 @@ linters:
   default: all
   disable:
     - depguard
+    - err113
+    - exhaustruct
     - forbidigo
     - funcorder
+    - gochecknoglobals
     - godox
+    - ireturn
     - mnd
     - nlreturn
+    - noinlineerr
     - nonamedreturns
+    - paralleltest
+    - testpackage
     - varnamelen
     - wsl
   settings:
@@ -32,6 +39,8 @@ linters:
         - .WithStack(
         - (context.Context).Err()
   exclusions:
+    paths:
+      - examples/.*
     generated: lax
     presets:
       - comments

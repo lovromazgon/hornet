@@ -4,25 +4,25 @@ import "log/slog"
 
 // ClientOption configures the client.
 type ClientOption interface {
-	applyClient(*clientOptions)
+	applyClient(opt *clientOptions)
 }
 
 // funcClientOption wraps a function that modifies clientOptions into an
 // implementation of the ClientOption interface.
 type funcClientOption func(*clientOptions)
 
-func (f funcClientOption) applyClient(so *clientOptions) { f(so) }
+func (f funcClientOption) applyClient(opt *clientOptions) { f(opt) }
 
 // ServerOption configures the server.
 type ServerOption interface {
-	applyServer(*serverOptions)
+	applyServer(opt *serverOptions)
 }
 
 // funcServerOption wraps a function that modifies serverOptions into an
 // implementation of the ServerOption interface.
 type funcServerOption func(*serverOptions)
 
-func (f funcServerOption) applyServer(so *serverOptions) { f(so) }
+func (f funcServerOption) applyServer(opt *serverOptions) { f(opt) }
 
 // ClientServerOption is an option that can configure both the Server and
 // Client.
@@ -42,7 +42,7 @@ type funcClientServerOption struct {
 // server or the client.
 func WithLogger(l *slog.Logger) ClientServerOption {
 	return funcClientServerOption{
-		funcClientOption: func(o *clientOptions) { o.logger = l },
-		funcServerOption: func(o *serverOptions) { o.logger = l },
+		funcClientOption: func(opt *clientOptions) { opt.logger = l },
+		funcServerOption: func(opt *serverOptions) { opt.logger = l },
 	}
 }

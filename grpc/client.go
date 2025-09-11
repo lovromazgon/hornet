@@ -80,6 +80,7 @@ func NewClient(module api.Module, opt ...ClientOption) (*ClientConn, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get malloc function: %w", err)
 	}
+
 	commandFn, err := getExportedFunction(module, commandFunctionDefinition)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get command function: %w", err)
@@ -95,6 +96,7 @@ func NewClient(module api.Module, opt ...ClientOption) (*ClientConn, error) {
 	return c, nil
 }
 
+//nolint:lll // This method is just a stub to satisfy the grpc.ClientConnInterface interface.
 func (c *ClientConn) NewStream(context.Context, *grpc.StreamDesc, string, ...grpc.CallOption) (grpc.ClientStream, error) {
 	return nil, errors.New("streams are not supported by Wasm")
 }
@@ -127,7 +129,7 @@ func (c *ClientConn) invoke(
 	method string,
 	req proto.Message,
 	resp proto.Message,
-	opts ...grpc.CallOption,
+	_ ...grpc.CallOption, // Options are currently ignored.
 ) error {
 	c.m.Lock()
 	defer c.m.Unlock()
@@ -137,6 +139,7 @@ func (c *ClientConn) invoke(
 	// Step 1: Allocate memory in the Wasm module if needed.
 	if msgSize := proto.Size(req) + len(method); cap(c.buf) < msgSize {
 		logger.DebugContext(ctx, "memory buffer is too small, reallocating using malloc function")
+
 		err := c.invokeMalloc(ctx, msgSize)
 		if err != nil {
 			return fmt.Errorf("failed to allocate memory in Wasm module: %w", err)
@@ -144,12 +147,14 @@ func (c *ClientConn) invoke(
 	}
 
 	// Step 2: Write request to the buffer in the Wasm module.
-	if err := c.writeRequestToModule(method, req); err != nil {
+	err := c.writeRequestToModule(method, req)
+	if err != nil {
 		return fmt.Errorf("failed to write request to Wasm module: %w", err)
 	}
 
 	// Step 3: Call the Wasm command function.
-	if err := c.invokeCommand(ctx, method, resp); err != nil {
+	err = c.invokeCommand(ctx, method, resp)
+	if err != nil {
 		return fmt.Errorf("failed to invoke command in Wasm module: %w", err)
 	}
 
@@ -157,7 +162,10 @@ func (c *ClientConn) invoke(
 }
 
 func (c *ClientConn) invokeMalloc(ctx context.Context, msgSize int) error {
-	results, err := c.mallocFn.Call(ctx, api.EncodeI32(int32(msgSize)))
+	results, err := c.mallocFn.Call(
+		ctx,
+		api.EncodeU32(uint32(msgSize)), //nolint:gosec // no risk of overflow
+	)
 	if err != nil {
 		return fmt.Errorf("failed to call Wasm function %q: %w", c.mallocFn.Definition().Name(), err)
 	}
@@ -167,6 +175,7 @@ func (c *ClientConn) invokeMalloc(ctx context.Context, msgSize int) error {
 	if cap(c.buf) < msgSize {
 		c.buf = make([]byte, msgSize)
 	}
+
 	return nil
 }
 
@@ -178,6 +187,7 @@ func (c *ClientConn) writeRequestToModule(method string, req proto.Message) erro
 	if err != nil {
 		return fmt.Errorf("failed to marshal protobuf command request: %w", err)
 	}
+
 	c.buf = reqBytes
 
 	if !c.module.Memory().Write(c.modulePointer, c.buf) {
@@ -191,17 +201,17 @@ func (c *ClientConn) invokeCommand(ctx context.Context, method string, resp prot
 	results, err := c.commandFn.Call(
 		ctx,
 		api.EncodeU32(c.modulePointer),
-		api.EncodeU32(uint32(len(method))),
-		api.EncodeU32(uint32(len(c.buf))),
+		api.EncodeU32(uint32(len(method))), //nolint:gosec // no risk of overflow
+		api.EncodeU32(uint32(len(c.buf))),  //nolint:gosec // no risk of overflow
 	)
 	if err != nil {
 		return fmt.Errorf("failed to call Wasm function %q: %w", c.commandFn.Definition().Name(), err)
 	}
 
-	// Step 6: Check the results of the function call.
+	// Check the results of the function call.
 	ptrSize := results[0]
-	ptr := uint32(ptrSize >> 32)
-	size := uint32(ptrSize)
+	ptr := uint32(ptrSize >> 32) //nolint:gosec // higher 32 bits
+	size := uint32(ptrSize)      //nolint:gosec // lower 32 bits
 
 	// Read the byte slice from the module's memory.
 	respBytes, ok := c.module.Memory().Read(ptr, size)
@@ -217,5 +227,10 @@ func (c *ClientConn) invokeCommand(ctx context.Context, method string, resp prot
 }
 
 func (c *ClientConn) Close(ctx context.Context) error {
-	return c.module.Close(ctx)
+	err := c.module.Close(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to close module: %w", err)
+	}
+
+	return nil
 }
