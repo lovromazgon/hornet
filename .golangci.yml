@@ -18,6 +18,7 @@ linters:
     - testpackage
     - varnamelen
     - wsl
+    - wsl_v5
   settings:
     gocyclo:
       min-complexity: 20

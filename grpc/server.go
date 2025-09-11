@@ -181,6 +181,7 @@ func protoMarshalAppend(data []byte, v any) ([]byte, error) {
 
 	// The first byte tells the client if it's an error or a valid response.
 	data = append(data, 0)
+
 	data, err := proto.MarshalOptions{}.MarshalAppend(data, msg)
 	if err != nil {
 		return data, fmt.Errorf("proto: error marshalling data: %w", err)

@@ -222,7 +222,7 @@ func (c *ClientConn) invokeCommand(ctx context.Context, method string, resp prot
 	}
 
 	if len(respBytes) == 0 {
-		return fmt.Errorf("received empty response from Wasm module")
+		return errors.New("received empty response from Wasm module")
 	}
 
 	if respBytes[0] == 1 {
@@ -231,7 +231,7 @@ func (c *ClientConn) invokeCommand(ctx context.Context, method string, resp prot
 		if err := proto.Unmarshal(respBytes[1:], &st); err != nil {
 			return fmt.Errorf("failed to unmarshal protobuf error response: %w", err)
 		}
-		return status.ErrorProto(&st)
+		return status.ErrorProto(&st) //nolint:wrapcheck // We want to preserve the original error.
 	}
 
 	if err := proto.Unmarshal(respBytes[1:], resp); err != nil {
