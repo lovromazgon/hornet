@@ -15,8 +15,9 @@ func InitializeModuleAndCalculator(
 	ctx context.Context,
 	runtime wazero.Runtime,
 	source []byte,
+	opts ...hgrpc.ClientOption,
 ) (api.Module, Calculator, error) {
-	module, calc, err := hgrpc.InstantiateModuleAndClient(ctx, runtime, source, calculatorv1.NewCalculatorPluginClient)
+	module, calc, err := hgrpc.InstantiateModuleAndClient(ctx, runtime, source, calculatorv1.NewCalculatorPluginClient, opts...)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate Wasm module: %w", err))
 	}

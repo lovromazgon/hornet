@@ -3,26 +3,41 @@
 package wasm
 
 import (
-	"bytes"
 	"unsafe"
+
+	"github.com/lovromazgon/hornet/buffer"
 )
 
-var mallocBuffer = newBuffer(1024) // 1kB buffer for malloc
+var allocations = make(map[uintptr][]byte)
 
 //go:wasmexport hornet-v1-malloc
-func malloc(size uint32) unsafe.Pointer {
-	// Allocate a buffer of the specified size.
-	mallocBuffer.Grow(int(size))
-	return mallocBuffer.Pointer()
+func malloc(ptr uintptr, size uint32) uintptr {
+	b, ok := allocations[ptr]
+	if !ok {
+		// New allocation
+		b = make([]byte, size)
+		ptr = uintptr(unsafe.Pointer(&b[0]))
+		allocations[ptr] = b
+	}
+
+	buf := (*buffer.Buffer)(&b)
+	ptrChanged := buf.Grow(int(size))
+	if ptrChanged {
+		delete(allocations, ptr)
+		ptr = buf.Pointer()
+		allocations[ptr] = *buf
+	}
+
+	return buf.Pointer()
 }
 
 //go:wasmexport hornet-v1-command
-func command(ptr unsafe.Pointer, size uint32) uint64 {
-	raw := unsafe.Slice((*byte)(ptr), size)
-	i := bytes.IndexByte(raw, '\u0000')
-	if i == -1 {
-		panic("invalid input to hornet-v1-command - expected NUL character separating method and data")
-	}
-	out := handler.Handle(string(raw[:i]), raw[i+1:])
-	return (*buffer)(&out).PointerAndSize()
+func command(ptr uintptr, methodSize, bufferSize uint32) uint64 {
+	input := unsafe.Slice((*byte)(unsafe.Pointer(ptr)), bufferSize)
+
+	method := (input)[:methodSize]
+	req := (input)[methodSize:]
+
+	output := handler.Handle(string(method), req)
+	return (*buffer.Buffer)(&output).PointerAndSize()
 }

@@ -46,3 +46,7 @@ func WithLogger(l *slog.Logger) ClientServerOption {
 		funcServerOption: func(o *serverOptions) { o.logger = l },
 	}
 }
+
+func WithMaxConcurrentRequests(limit int) ClientOption {
+	return funcClientOption(func(o *clientOptions) { o.maxConcurrentRequests = limit })
+}

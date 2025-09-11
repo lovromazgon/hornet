@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"sync"
 
 	"github.com/lovromazgon/hornet/example/calculator/sdk"
 	"github.com/tetratelabs/wazero"
@@ -37,6 +38,19 @@ func main() {
 	sub(ctx, calc)
 	mul(ctx, calc)
 	div(ctx, calc)
+
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			add(ctx, calc)
+			sub(ctx, calc)
+			mul(ctx, calc)
+			div(ctx, calc)
+		}()
+	}
+	wg.Wait()
 }
 
 func add(ctx context.Context, calc sdk.Calculator) {

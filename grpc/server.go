@@ -144,8 +144,9 @@ func (s *Server) Handle(fn string, reqBytes []byte) []byte {
 		return s.handleError(st, "service", service, "method", method, "error", err)
 	}
 
-	// TODO: reuse bytes buffer
-	respBytes, err := protoMarshalAppend(nil, resp)
+	// NB: We overwrite the request bytes to reuse the same bytes buffer and
+	// possibly avoid allocations.
+	respBytes, err := protoMarshalAppend(reqBytes[:0], resp)
 	if err != nil {
 		return s.handleError(
 			status.New(codes.Internal, "error marshalling response"),

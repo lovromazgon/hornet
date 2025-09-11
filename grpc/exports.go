@@ -15,17 +15,21 @@ type functionDefinition struct {
 
 var (
 	mallocFunctionDefinition = functionDefinition{
-		name:        "hornet-v1-malloc",
-		paramTypes:  []api.ValueType{api.ValueTypeI32}, // i32 (size of the buffer)
-		resultTypes: []api.ValueType{api.ValueTypeI32}, // i32 (pointer to the allocated buffer)
+		name: "hornet-v1-malloc",
+		paramTypes: []api.ValueType{
+			api.ValueTypeI32, // u32 (pointer to the buffer)
+			api.ValueTypeI32, // i32 (size of the buffer)
+		},
+		resultTypes: []api.ValueType{api.ValueTypeI32}, // u32 (pointer to the allocated buffer)
 	}
 	commandFunctionDefinition = functionDefinition{
 		name: "hornet-v1-command",
 		paramTypes: []api.ValueType{
-			api.ValueTypeI32, // i32 (pointer to the buffer)
-			api.ValueTypeI32, // i32 (size of the buffer)
+			api.ValueTypeI32, // u32 (pointer to the buffer)
+			api.ValueTypeI32, // u32 (method size)
+			api.ValueTypeI32, // u32 (buffer size)
 		},
-		resultTypes: []api.ValueType{api.ValueTypeI64}, // i64 (pointer and size of the buffer packed in a single i64)
+		resultTypes: []api.ValueType{api.ValueTypeI64}, // u64 (pointer and size of the buffer packed in a single u64)
 	}
 )
 
