@@ -34,11 +34,6 @@ func main() {
 	}
 	defer module.Close(ctx)
 
-	add(ctx, calc)
-	sub(ctx, calc)
-	mul(ctx, calc)
-	div(ctx, calc)
-
 	var wg sync.WaitGroup
 	for i := 0; i < 10; i++ {
 		wg.Add(1)
@@ -88,6 +83,7 @@ func mul(ctx context.Context, calc sdk.Calculator) {
 
 func div(ctx context.Context, calc sdk.Calculator) {
 	a, b := randomNumbers()
+	b++ // avoid division by zero
 
 	c, err := calc.Div(ctx, a, b)
 	if err != nil {

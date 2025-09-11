@@ -17,7 +17,6 @@ var (
 	mallocFunctionDefinition = functionDefinition{
 		name: "hornet-v1-malloc",
 		paramTypes: []api.ValueType{
-			api.ValueTypeI32, // u32 (pointer to the buffer)
 			api.ValueTypeI32, // i32 (size of the buffer)
 		},
 		resultTypes: []api.ValueType{api.ValueTypeI32}, // u32 (pointer to the allocated buffer)

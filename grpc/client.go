@@ -15,13 +15,11 @@ import (
 )
 
 type clientOptions struct {
-	logger                *slog.Logger
-	maxConcurrentRequests int
+	logger *slog.Logger
 }
 
 var defaultClientOptions = clientOptions{
-	logger:                slog.Default(),
-	maxConcurrentRequests: 2,
+	logger: slog.Default(),
 }
 
 var _ grpc.ClientConnInterface = &ClientConn{}
@@ -30,7 +28,15 @@ type ClientConn struct {
 	opts   clientOptions
 	module api.Module
 
-	invoker invoker
+	// m guards calls to the Wasm module.
+	m         sync.Mutex
+	mallocFn  api.Function
+	commandFn api.Function
+	// buf is the buffer used to communicate with the Wasm module.
+	buf []byte
+	// modulePointer is the pointer to the buffer in the Wasm module. It is used
+	// to write data to the Wasm module.
+	modulePointer uint32
 }
 
 func InstantiateModuleAndClient[T any](
@@ -70,15 +76,20 @@ func NewClient(module api.Module, opt ...ClientOption) (*ClientConn, error) {
 		o.applyClient(&opts)
 	}
 
-	ivk, err := newAsyncInvoker(module, opts)
+	mallocFn, err := getExportedFunction(module, mallocFunctionDefinition)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create async invoker: %w", err)
+		return nil, fmt.Errorf("failed to get malloc function: %w", err)
+	}
+	commandFn, err := getExportedFunction(module, commandFunctionDefinition)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get command function: %w", err)
 	}
 
 	c := &ClientConn{
-		opts:    opts,
-		module:  module,
-		invoker: ivk,
+		opts:      opts,
+		module:    module,
+		mallocFn:  mallocFn,
+		commandFn: commandFn,
 	}
 
 	return c, nil
@@ -108,205 +119,83 @@ func (c *ClientConn) Invoke(
 		return errors.New("module is closed")
 	}
 
-	return c.invoker.invoke(ctx, method, reqMsg, respMsg, opts...)
+	return c.invoke(ctx, method, reqMsg, respMsg, opts...)
 }
 
-type invoker interface {
-	invoke(ctx context.Context, method string, req proto.Message, resp proto.Message, opts ...grpc.CallOption) error
-}
+func (c *ClientConn) invoke(
+	ctx context.Context,
+	method string,
+	req proto.Message,
+	resp proto.Message,
+	opts ...grpc.CallOption,
+) error {
+	c.m.Lock()
+	defer c.m.Unlock()
 
-type syncInvoker struct {
-	m sync.Mutex
-
-	module api.Module
-	opts   clientOptions
-
-	mallocFn  api.Function
-	commandFn api.Function
-
-	// buf is the buffer used to communicate with the Wasm module.
-	buf []byte
-	// modulePointer is the pointer to the buffer in the Wasm module. It is used
-	// to write data to the Wasm module.
-	modulePointer uint32
-}
-
-func (i *syncInvoker) invoke(ctx context.Context, method string, req proto.Message, resp proto.Message, opts ...grpc.CallOption) error {
-	// TODO respect options if applicable
-
-	i.m.Lock()
-	defer i.m.Unlock()
-
-	logger := i.opts.logger.With("method", method)
+	logger := c.opts.logger.With("method", method)
 
 	// Step 1: Allocate memory in the Wasm module if needed.
-	if msgSize := proto.Size(req) + len(method) + 1; cap(i.buf) < msgSize {
+	if msgSize := proto.Size(req) + len(method); cap(c.buf) < msgSize {
 		logger.DebugContext(ctx, "memory buffer is too small, reallocating using malloc function")
-
-		results, err := i.mallocFn.Call(ctx, api.EncodeI32(int32(msgSize)))
+		err := c.invokeMalloc(ctx, msgSize)
 		if err != nil {
-			logger.ErrorContext(ctx, "failed to call Wasm function", "function", i.mallocFn.Definition().Name(), "error", err)
-			return fmt.Errorf("failed to call Wasm function %q: %w", i.mallocFn.Definition().Name(), err)
-		}
-
-		i.modulePointer = api.DecodeU32(results[0])
-
-		if cap(i.buf) < msgSize {
-			i.buf = make([]byte, msgSize)
-		}
-	}
-
-	// Step 2: Marshal the method into the buffer.
-	i.buf = i.buf[:len(method)]
-	copy(i.buf, method)
-
-	// Step 3: Marshal the request into the buffer.
-	reqBytes, err := proto.MarshalOptions{}.MarshalAppend(i.buf, req)
-	if err != nil {
-		logger.ErrorContext(ctx, "failed marshalling protobuf command request", "error", err)
-		return fmt.Errorf("failed to marshal protobuf command request: %w", err)
-	}
-
-	// Step 4: Write the request to the Wasm module's memory.
-	if !i.module.Memory().Write(i.modulePointer, reqBytes) {
-		logger.ErrorContext(ctx, "failed to write to Wasm module memory", "ptr", i.modulePointer, "size", len(reqBytes))
-		return fmt.Errorf("failed to write to Wasm module memory at pointer %d with size %d", i.modulePointer, len(reqBytes))
-	}
-
-	// Step 5: Call the Wasm function with the pointer and size of the buffer.
-	results, err := i.commandFn.Call(
-		ctx,
-		api.EncodeU32(i.modulePointer),
-		api.EncodeU32(uint32(len(method))),
-		api.EncodeU32(uint32(len(reqBytes))),
-	)
-	if err != nil {
-		logger.ErrorContext(ctx, "failed to call Wasm function", "function", i.commandFn.Definition().Name(), "error", err)
-		return fmt.Errorf("failed to call Wasm function %q: %w", i.commandFn.Definition().Name(), err)
-	}
-
-	// Step 6: Check the results of the function call.
-	ptrSize := results[0]
-	ptr := uint32(ptrSize >> 32)
-	size := uint32(ptrSize)
-
-	// Read the byte slice from the module's memory.
-	respBytes, ok := i.module.Memory().Read(ptr, size)
-	if !ok {
-		logger.ErrorContext(ctx, "failed to read from Wasm module memory", "ptr", ptr, "size", size)
-		return fmt.Errorf("failed to read from Wasm module memory at pointer %d with size %d", ptr, size)
-	}
-
-	if err := proto.Unmarshal(respBytes, resp); err != nil {
-		logger.ErrorContext(ctx, "failed to unmarshal protobuf command response", "error", err)
-		return fmt.Errorf("failed to unmarshal protobuf command response: %w", err)
-	}
-
-	return nil
-}
-
-type asyncInvoker struct {
-	opts   clientOptions
-	module api.Module
-
-	// workers is a channel of available worker contexts.
-	// The size of the channel is the maximum number of concurrent requests.
-	workers chan *asyncInvokerContext
-
-	// m protects access to mallocFn.
-	m        sync.Mutex
-	mallocFn api.Function
-}
-
-type asyncInvokerContext struct {
-	id        int
-	commandFn api.Function
-
-	// buf is the buffer used to communicate with the Wasm module.
-	buf []byte
-	// modulePointer is the pointer to the buffer in the Wasm module. It is used
-	// to write data to the Wasm module.
-	modulePointer uint32
-}
-
-func newAsyncInvoker(module api.Module, opts clientOptions) (*asyncInvoker, error) {
-	mallocFn, err := getExportedFunction(module, mallocFunctionDefinition)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get malloc function: %w", err)
-	}
-
-	workers := make(chan *asyncInvokerContext, opts.maxConcurrentRequests)
-	for i := range opts.maxConcurrentRequests {
-		workCtx, err := newAsyncInvokerContext(i, module)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create async invoker context: %w", err)
-		}
-		workers <- workCtx
-	}
-
-	return &asyncInvoker{
-		opts:     opts,
-		module:   module,
-		workers:  workers,
-		mallocFn: mallocFn,
-	}, nil
-}
-
-func newAsyncInvokerContext(id int, module api.Module) (*asyncInvokerContext, error) {
-	commandFn, err := getExportedFunction(module, commandFunctionDefinition)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get command function: %w", err)
-	}
-
-	return &asyncInvokerContext{
-		id:        id,
-		commandFn: commandFn,
-	}, nil
-}
-
-func (i *asyncInvoker) invoke(ctx context.Context, method string, req proto.Message, resp proto.Message, opts ...grpc.CallOption) error {
-	// TODO respect options if applicable
-
-	workCtx := <-i.workers
-	defer func() { i.workers <- workCtx }()
-
-	logger := i.opts.logger.With("method", method)
-
-	// Step 1: Allocate memory in the Wasm module if needed.
-	if msgSize := proto.Size(req) + len(method) + 1; cap(workCtx.buf) < msgSize {
-		logger.DebugContext(ctx, "memory buffer is too small, reallocating using malloc function")
-		if err := i.malloc(ctx, workCtx, msgSize); err != nil {
 			return fmt.Errorf("failed to allocate memory in Wasm module: %w", err)
 		}
 	}
 
-	// Step 2: Marshal the method into the buffer.
-	workCtx.buf = workCtx.buf[:len(method)]
-	copy(workCtx.buf, method)
+	// Step 2: Write request to the buffer in the Wasm module.
+	if err := c.writeRequestToModule(method, req); err != nil {
+		return fmt.Errorf("failed to write request to Wasm module: %w", err)
+	}
 
-	// Step 3: Marshal the request into the buffer.
-	reqBytes, err := proto.MarshalOptions{}.MarshalAppend(workCtx.buf, req)
+	// Step 3: Call the Wasm command function.
+	if err := c.invokeCommand(ctx, method, resp); err != nil {
+		return fmt.Errorf("failed to invoke command in Wasm module: %w", err)
+	}
+
+	return nil
+}
+
+func (c *ClientConn) invokeMalloc(ctx context.Context, msgSize int) error {
+	results, err := c.mallocFn.Call(ctx, api.EncodeI32(int32(msgSize)))
 	if err != nil {
-		logger.ErrorContext(ctx, "failed marshalling protobuf command request", "error", err)
+		return fmt.Errorf("failed to call Wasm function %q: %w", c.mallocFn.Definition().Name(), err)
+	}
+
+	c.modulePointer = api.DecodeU32(results[0])
+
+	if cap(c.buf) < msgSize {
+		c.buf = make([]byte, msgSize)
+	}
+	return nil
+}
+
+func (c *ClientConn) writeRequestToModule(method string, req proto.Message) error {
+	c.buf = c.buf[:len(method)]
+	copy(c.buf, method)
+
+	reqBytes, err := proto.MarshalOptions{}.MarshalAppend(c.buf, req)
+	if err != nil {
 		return fmt.Errorf("failed to marshal protobuf command request: %w", err)
 	}
+	c.buf = reqBytes
 
-	// Step 4: Write the request to the Wasm module's memory.
-	if !i.module.Memory().Write(workCtx.modulePointer, reqBytes) {
-		logger.ErrorContext(ctx, "failed to write to Wasm module memory", "ptr", workCtx.modulePointer, "size", len(reqBytes))
-		return fmt.Errorf("failed to write to Wasm module memory at pointer %d with size %d", workCtx.modulePointer, len(reqBytes))
+	if !c.module.Memory().Write(c.modulePointer, c.buf) {
+		return fmt.Errorf("failed to write to Wasm module memory at pointer %d with size %d", c.modulePointer, len(c.buf))
 	}
 
-	// Step 5: Call the Wasm function with the pointer and size of the buffer.
-	results, err := workCtx.commandFn.Call(
+	return nil
+}
+
+func (c *ClientConn) invokeCommand(ctx context.Context, method string, resp proto.Message) error {
+	results, err := c.commandFn.Call(
 		ctx,
-		api.EncodeU32(workCtx.modulePointer),
+		api.EncodeU32(c.modulePointer),
 		api.EncodeU32(uint32(len(method))),
-		api.EncodeU32(uint32(len(reqBytes))),
+		api.EncodeU32(uint32(len(c.buf))),
 	)
 	if err != nil {
-		logger.ErrorContext(ctx, "failed to call Wasm function", "function", workCtx.commandFn.Definition().Name(), "error", err)
-		return fmt.Errorf("failed to call Wasm function %q: %w", workCtx.commandFn.Definition().Name(), err)
+		return fmt.Errorf("failed to call Wasm function %q: %w", c.commandFn.Definition().Name(), err)
 	}
 
 	// Step 6: Check the results of the function call.
@@ -315,37 +204,18 @@ func (i *asyncInvoker) invoke(ctx context.Context, method string, req proto.Mess
 	size := uint32(ptrSize)
 
 	// Read the byte slice from the module's memory.
-	respBytes, ok := i.module.Memory().Read(ptr, size)
+	respBytes, ok := c.module.Memory().Read(ptr, size)
 	if !ok {
-		logger.ErrorContext(ctx, "failed to read from Wasm module memory", "ptr", ptr, "size", size)
 		return fmt.Errorf("failed to read from Wasm module memory at pointer %d with size %d", ptr, size)
 	}
 
 	if err := proto.Unmarshal(respBytes, resp); err != nil {
-		logger.ErrorContext(ctx, "failed to unmarshal protobuf command response", "error", err)
 		return fmt.Errorf("failed to unmarshal protobuf command response: %w", err)
 	}
 
 	return nil
 }
 
-func (i *asyncInvoker) malloc(ctx context.Context, workCtx *asyncInvokerContext, msgSize int) error {
-	i.m.Lock()
-	defer i.m.Unlock()
-
-	results, err := i.mallocFn.Call(
-		ctx,
-		api.EncodeU32(workCtx.modulePointer),
-		api.EncodeI32(int32(msgSize)),
-	)
-	if err != nil {
-		return fmt.Errorf("failed to call Wasm function %q: %w", i.mallocFn.Definition().Name(), err)
-	}
-
-	workCtx.modulePointer = api.DecodeU32(results[0])
-
-	if cap(workCtx.buf) < msgSize {
-		workCtx.buf = make([]byte, msgSize)
-	}
-	return nil
+func (c *ClientConn) Close(ctx context.Context) error {
+	return c.module.Close(ctx)
 }

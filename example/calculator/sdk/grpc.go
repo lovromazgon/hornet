@@ -71,9 +71,9 @@ func (c *calculatorClient) Div(ctx context.Context, a, b int64) (int64, error) {
 	return out.GetC(), nil
 }
 
-// RegisterCalculatorServer registers the Calculator implementation on the grpc
+// RegisterCalculator registers the Calculator implementation on the grpc
 // service registrar (grpc.Server). Use this method when initializing the plugin.
-func RegisterCalculatorServer(srv grpc.ServiceRegistrar, calc Calculator) {
+func RegisterCalculator(srv grpc.ServiceRegistrar, calc Calculator) {
 	calculatorv1.RegisterCalculatorPluginServer(srv, &calculatorServer{impl: calc})
 }
 

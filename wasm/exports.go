@@ -8,27 +8,13 @@ import (
 	"github.com/lovromazgon/hornet/buffer"
 )
 
-var allocations = make(map[uintptr][]byte)
+var mallocBuffer = buffer.NewBuffer(1024) // 1kB buffer for malloc
 
 //go:wasmexport hornet-v1-malloc
-func malloc(ptr uintptr, size uint32) uintptr {
-	b, ok := allocations[ptr]
-	if !ok {
-		// New allocation
-		b = make([]byte, size)
-		ptr = uintptr(unsafe.Pointer(&b[0]))
-		allocations[ptr] = b
-	}
-
-	buf := (*buffer.Buffer)(&b)
-	ptrChanged := buf.Grow(int(size))
-	if ptrChanged {
-		delete(allocations, ptr)
-		ptr = buf.Pointer()
-		allocations[ptr] = *buf
-	}
-
-	return buf.Pointer()
+func malloc(size uint32) uintptr {
+	// Allocate a buffer of the specified size.
+	mallocBuffer.Grow(int(size))
+	return mallocBuffer.Pointer()
 }
 
 //go:wasmexport hornet-v1-command

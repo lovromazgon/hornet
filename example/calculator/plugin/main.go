@@ -19,7 +19,7 @@ func main() {
 func init() {
 	// The plugin is initialized in init.
 	srv := grpc.NewServer()
-	sdk.RegisterCalculatorServer(srv, &Calculator{})
+	sdk.RegisterCalculator(srv, &Calculator{})
 	wasm.Init(srv)
 }
 
