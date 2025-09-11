@@ -1,4 +1,7 @@
-# Hornet
+<h1 align="center">Hornet</h1>
+<p align="center">
+  <img width="150" alt="hornet-logo" src="https://github.com/user-attachments/assets/9cf7ef84-b4c8-4fa8-ae4d-8814b481fab9" />
+</p>
 
 [![License](https://img.shields.io/github/license/lovromazgon/hornet)](https://github.com/lovromazgon/hornet/blob/main/LICENSE)
 [![Test](https://github.com/lovromazgon/hornet/actions/workflows/test.yml/badge.svg)](https://github.com/lovromazgon/hornet/actions/workflows/test.yml)
@@ -219,3 +222,4 @@ changes, please open an issue first to discuss what you would like to change.
 
 - Built on the [wazero](https://wazero.io/) WebAssembly runtime.
 - Inspired by the [Conduit Processor SDK](https://github.com/ConduitIO/conduit-processor-sdk).
+- Logo created using [Gemini](https://gemini.google.com/).
