@@ -4,11 +4,9 @@ package wasm
 
 import (
 	"unsafe"
-
-	"github.com/lovromazgon/hornet/buffer"
 )
 
-var mallocBuffer = buffer.NewBuffer(1024) // 1kB buffer for malloc
+var mallocBuffer = newBuffer(1024) // 1kB buffer for malloc
 
 //go:wasmexport hornet-v1-malloc
 func malloc(size uint32) uintptr {
@@ -25,5 +23,5 @@ func command(ptr uintptr, methodSize, bufferSize uint32) uint64 {
 	req := (input)[methodSize:]
 
 	output := handler.Handle(string(method), req)
-	return (*buffer.Buffer)(&output).PointerAndSize()
+	return (*buffer)(&output).PointerAndSize()
 }

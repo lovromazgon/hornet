@@ -1,4 +1,4 @@
-package buffer
+package wasm
 
 import (
 	"testing"
@@ -6,13 +6,11 @@ import (
 	"github.com/matryer/is"
 )
 
-// TODO grow return value test
-
 func TestBuffer_NewBuffer(t *testing.T) {
 	t.Run("should create a buffer with a specific size", func(t *testing.T) {
 		is := is.New(t)
 		size := 128
-		b := NewBuffer(size)
+		b := newBuffer(size)
 
 		is.Equal(len(*b), size)
 		is.True(cap(*b) >= size)
@@ -20,7 +18,7 @@ func TestBuffer_NewBuffer(t *testing.T) {
 
 	t.Run("should create an empty buffer for size 0", func(t *testing.T) {
 		is := is.New(t)
-		b := NewBuffer(0)
+		b := newBuffer(0)
 		is.True(b != nil)    // The buffer itself is not nil
 		is.Equal(len(*b), 0) // The underlying slice has zero length
 		is.Equal(cap(*b), 0) // and zero capacity
@@ -30,7 +28,7 @@ func TestBuffer_NewBuffer(t *testing.T) {
 func TestBuffer_Grow(t *testing.T) {
 	t.Run("should grow by re-allocating and preserve data", func(t *testing.T) {
 		is := is.New(t)
-		b := NewBuffer(10)
+		b := newBuffer(10)
 		// Put some data in the buffer
 		copy(*b, "0123456789")
 
@@ -38,8 +36,9 @@ func TestBuffer_Grow(t *testing.T) {
 		originalPtr := b.Pointer()
 
 		newSize := originalCap + 10
-		b.Grow(newSize)
+		reallocated := b.Grow(newSize)
 
+		is.True(reallocated) // Should have reallocated
 		is.Equal(len(*b), newSize)
 		is.True(cap(*b) >= newSize)
 		is.True(b.Pointer() != originalPtr)       // Pointer should change after reallocation
@@ -49,15 +48,16 @@ func TestBuffer_Grow(t *testing.T) {
 	t.Run("should grow by re-slicing when capacity is sufficient", func(t *testing.T) {
 		is := is.New(t)
 		// Create a buffer with more capacity than length
-		b := Buffer(make([]byte, 5, 20))
+		b := buffer(make([]byte, 5, 20))
 		copy(b, "hello")
 
 		originalCap := cap(b)
 		originalPtr := b.Pointer()
 
 		newSize := 15
-		b.Grow(newSize)
+		reallocated := b.Grow(newSize)
 
+		is.True(!reallocated) // Should NOT have reallocated
 		is.Equal(len(b), newSize)
 		is.Equal(cap(b), originalCap)      // Capacity should not change
 		is.Equal(b.Pointer(), originalPtr) // Pointer should not change
@@ -69,7 +69,7 @@ func TestBuffer_PointerAndSize(t *testing.T) {
 	t.Run("should correctly encode pointer and size", func(t *testing.T) {
 		is := is.New(t)
 		// Start with a non-zero buffer per assumptions
-		b := NewBuffer(256)
+		b := newBuffer(256)
 
 		packed := b.PointerAndSize()
 		is.True(packed != 0)
@@ -89,7 +89,7 @@ func TestBuffer_PointerAndSize(t *testing.T) {
 	t.Run("should return 0 for an empty buffer", func(t *testing.T) {
 		is := is.New(t)
 		// Even though the assumption is non-zero, the methods should be robust.
-		b := NewBuffer(0)
+		b := newBuffer(0)
 		packed := b.PointerAndSize()
 		is.Equal(packed, uint64(0)) // Pointer is nil (0) and size is 0
 	})
