@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/lovromazgon/hornet"
 	calculatorv1 "github.com/lovromazgon/hornet/examples/calculator/sdk/proto/calculator/v1"
-	hgrpc "github.com/lovromazgon/hornet/grpc"
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/api"
 	"google.golang.org/grpc"
@@ -20,9 +20,9 @@ func InitializeModuleAndCalculator(
 	ctx context.Context,
 	runtime wazero.Runtime,
 	source []byte,
-	opts ...hgrpc.ClientOption,
+	opts ...hornet.ClientOption,
 ) (api.Module, Calculator, error) {
-	module, calc, err := hgrpc.InstantiateModuleAndClient(ctx, runtime, source, calculatorv1.NewCalculatorPluginClient, opts...)
+	module, calc, err := hornet.InstantiateModuleAndClient(ctx, runtime, source, calculatorv1.NewCalculatorPluginClient, opts...)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate Wasm module: %w", err))
 	}

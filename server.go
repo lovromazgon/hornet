@@ -1,4 +1,4 @@
-package grpc
+package hornet
 
 import (
 	"context"
@@ -100,7 +100,7 @@ func (s *Server) register(sd *grpc.ServiceDesc, ss any) error {
 	return nil
 }
 
-// Handle implements the wasm.Handler interface and processes the bytes sent to
+// Handle implements the Handler interface and processes the bytes sent to
 // the plugin as a gRPC request.
 func (s *Server) Handle(fn string, reqBytes []byte) []byte {
 	// Start a new context for each request.

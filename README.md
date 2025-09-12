@@ -78,8 +78,8 @@ package main
 
 import (
     "context"
-    "github.com/lovromazgon/hornet/grpc"
-    "github.com/lovromazgon/hornet/wasm"
+
+    "github.com/lovromazgon/hornet"
     // Your generated protobuf code
     calculatorv1 "your-project/proto/calculator/v1"
 )
@@ -90,9 +90,9 @@ func main() {
 
 func init() {
     // Initialize the plugin gRPC server
-    srv := grpc.NewServer()
+    srv := hornet.NewServer()
     calculatorv1.RegisterCalculatorPluginServer(srv, &Calculator{})
-    wasm.Init(srv)
+    hornet.Init(srv)
 }
 
 type Calculator struct {
@@ -129,9 +129,10 @@ import (
     "fmt"
     "os"
     
-    "github.com/lovromazgon/hornet/grpc"
+    "github.com/lovromazgon/hornet"
     "github.com/tetratelabs/wazero"
     "github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
+    // Your generated protobuf code
     calculatorv1 "your-project/proto/calculator/v1"
 )
 
@@ -152,7 +153,7 @@ func main() {
     }
     
     // Instantiate the plugin
-    module, client, err := grpc.InstantiateModuleAndClient(
+    module, client, err := hornet.InstantiateModuleAndClient(
         ctx, r, wasmBytes, 
         calculatorv1.NewCalculatorPluginClient,
     )

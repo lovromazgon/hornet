@@ -7,9 +7,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/lovromazgon/hornet"
 	"github.com/lovromazgon/hornet/examples/calculator/sdk"
-	"github.com/lovromazgon/hornet/grpc"
-	"github.com/lovromazgon/hornet/wasm"
 )
 
 func main() {
@@ -19,9 +18,9 @@ func main() {
 
 func init() {
 	// The plugin is initialized in init.
-	srv := grpc.NewServer()
+	srv := hornet.NewServer()
 	sdk.RegisterCalculator(srv, &Calculator{})
-	wasm.Init(srv)
+	hornet.Init(srv)
 }
 
 // Calculator implements the interface defined in the SDK.

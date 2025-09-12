@@ -1,4 +1,4 @@
-package grpc
+package hornet
 
 import (
 	"context"
