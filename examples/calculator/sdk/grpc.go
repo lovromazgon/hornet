@@ -127,15 +127,14 @@ func (c *calculatorServer) Mul(ctx context.Context, req *calculatorv1.MulRequest
 }
 
 func (c *calculatorServer) Div(ctx context.Context, req *calculatorv1.DivRequest) (*calculatorv1.DivResponse, error) {
-	if req.GetB() == 0 {
-		// Return a gRPC InvalidArgument error if division by zero is attempted.
-		// The client can then check for this specific error and handle it
-		// accordingly.
-		return nil, status.Error(codes.InvalidArgument, ErrDivisionByZero.Error())
-	}
-
 	out, err := c.impl.Div(ctx, req.GetA(), req.GetB())
 	if err != nil {
+		if errors.Is(err, ErrDivisionByZero) {
+			// Return a gRPC InvalidArgument error if division by zero is attempted.
+			// The client can then check for this specific error and handle it
+			// accordingly.
+			return nil, status.Error(codes.InvalidArgument, err.Error())
+		}
 		return nil, err
 	}
 

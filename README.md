@@ -33,6 +33,12 @@ go get github.com/lovromazgon/hornet
 
 ## Quick Start
 
+> [!TIP]
+> See the [`examples/calculator`](./examples/calculator) directory for a runnable
+> example of a Hornet plugin and host application. That example also shows how
+> an SDK layer can be built on top of Hornet to simplify plugin implementation
+> for end users.
+
 ### 1. Define Your Service
 
 First, define your plugin interface using protobuf and gRPC:
@@ -172,13 +178,6 @@ func main() {
     fmt.Printf("10 + 32 = %d\n", result.GetResult()) // Output: 10 + 32 = 42
 }
 ```
-
-## Calculator Example
-
-See the [`examples/calculator`](./examples/calculator) directory for a complete
-working example of a Hornet plugin and host application. That example also shows
-how an SDK layer can be built on top of Hornet to simplify plugin implementation
-for end users.
 
 ## Error Handling
 
