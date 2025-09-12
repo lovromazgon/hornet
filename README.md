@@ -2,10 +2,11 @@
 <p align="center">
   <img width="150" alt="hornet-logo" src="https://github.com/user-attachments/assets/9cf7ef84-b4c8-4fa8-ae4d-8814b481fab9" />
 </p>
-
-[![License](https://img.shields.io/github/license/lovromazgon/hornet)](https://github.com/lovromazgon/hornet/blob/main/LICENSE)
-[![Test](https://github.com/lovromazgon/hornet/actions/workflows/test.yml/badge.svg)](https://github.com/lovromazgon/hornet/actions/workflows/test.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/lovromazgon/hornet)](https://goreportcard.com/report/github.com/lovromazgon/hornet)
+<p align="center">
+  <a href="https://github.com/lovromazgon/hornet/blob/main/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/lovromazgon/hornet" /></a>
+  <a href="https://github.com/lovromazgon/hornet/actions/workflows/test.yml"><img alt="Test" src="https://github.com/lovromazgon/hornet/actions/workflows/test.yml/badge.svg" /></a>
+  <a href="https://goreportcard.com/report/github.com/lovromazgon/hornet"><img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/lovromazgon/hornet" /></a>
+</p>
 
 Hornet is a Go library that provides a simple way to build plugins in Go
 applications using WebAssembly (Wasm), Wazero, and gRPC. Write your plugins in
