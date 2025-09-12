@@ -6,6 +6,7 @@
   <a href="https://github.com/lovromazgon/hornet/blob/main/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/lovromazgon/hornet" /></a>
   <a href="https://github.com/lovromazgon/hornet/actions/workflows/test.yml"><img alt="Test" src="https://github.com/lovromazgon/hornet/actions/workflows/test.yml/badge.svg" /></a>
   <a href="https://goreportcard.com/report/github.com/lovromazgon/hornet"><img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/lovromazgon/hornet" /></a>
+  <a href="https://pkg.go.dev/github.com/lovromazgon/hornet"><img alt="Go Reference" src="https://pkg.go.dev/badge/github.com/lovromazgon/hornet.svg" /></a>
 </p>
 
 Hornet is a Go library that provides a simple way to build plugins in Go

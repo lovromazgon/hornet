@@ -20,7 +20,7 @@ func init() {
 	// The plugin is initialized in init.
 	srv := hornet.NewServer()
 	sdk.RegisterCalculator(srv, &Calculator{})
-	hornet.Init(srv)
+	hornet.InitPlugin(srv)
 }
 
 // Calculator implements the interface defined in the SDK.

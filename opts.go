@@ -7,22 +7,22 @@ type ClientOption interface {
 	applyClient(opt *clientOptions)
 }
 
-// funcClientOption wraps a function that modifies clientOptions into an
+// clientOptionFunc wraps a function that modifies clientOptions into an
 // implementation of the ClientOption interface.
-type funcClientOption func(*clientOptions)
+type clientOptionFunc func(*clientOptions)
 
-func (f funcClientOption) applyClient(opt *clientOptions) { f(opt) }
+func (f clientOptionFunc) applyClient(opt *clientOptions) { f(opt) }
 
 // ServerOption configures the server.
 type ServerOption interface {
 	applyServer(opt *serverOptions)
 }
 
-// funcServerOption wraps a function that modifies serverOptions into an
+// serverOptionFunc wraps a function that modifies serverOptions into an
 // implementation of the ServerOption interface.
-type funcServerOption func(*serverOptions)
+type serverOptionFunc func(*serverOptions)
 
-func (f funcServerOption) applyServer(opt *serverOptions) { f(opt) }
+func (f serverOptionFunc) applyServer(opt *serverOptions) { f(opt) }
 
 // ClientServerOption is an option that can configure both the Server and
 // Client.
@@ -31,18 +31,18 @@ type ClientServerOption interface {
 	ServerOption
 }
 
-// funcClientServerOption wraps a funcClientOption and funcServerOption to
+// clientServerOptionFunc wraps a clientOptionFunc and serverOptionFunc to
 // create a combined option applicable to both the server and client.
-type funcClientServerOption struct {
-	funcClientOption
-	funcServerOption
+type clientServerOptionFunc struct {
+	clientOptionFunc
+	serverOptionFunc
 }
 
 // WithLogger returns a ClientServerOption that can set the logger for the
 // server or the client.
 func WithLogger(l *slog.Logger) ClientServerOption {
-	return funcClientServerOption{
-		funcClientOption: func(opt *clientOptions) { opt.logger = l },
-		funcServerOption: func(opt *serverOptions) { opt.logger = l },
+	return clientServerOptionFunc{
+		clientOptionFunc: func(opt *clientOptions) { opt.logger = l },
+		serverOptionFunc: func(opt *serverOptions) { opt.logger = l },
 	}
 }

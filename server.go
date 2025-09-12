@@ -33,6 +33,12 @@ var defaultServerOptions = serverOptions{
 
 var _ grpc.ServiceRegistrar = (*Server)(nil)
 
+// Server is a gRPC server that implements the hornet.PluginHandler interface to
+// be used in Wasm plugins. It supports unary RPCs only.
+//
+// It is similar to grpc.Server, but it does not implement the net.Listener
+// interface. Instead, it implements the hornet.PluginHandler interface to
+// process the bytes sent to the plugin as a gRPC request.
 type Server struct {
 	opts serverOptions
 
@@ -52,6 +58,18 @@ func NewServer(opt ...ServerOption) *Server {
 	}
 }
 
+// RegisterService registers a service and its implementation to the gRPC
+// server. It is called from the IDL generated code. This must be called in the
+// init function in the Wasm plugin. If ss is non-nil, its type is checked to
+// ensure it implements sd.HandlerType.
+//
+// If there is an error during registration, the server will log the error and
+// exit the process. This is to ensure that the plugin does not run with an
+// invalid state.
+//
+// Note that this method does not support stream RPCs. If the service
+// description contains stream methods, a warning will be logged and the stream
+// methods will be ignored.
 func (s *Server) RegisterService(sd *grpc.ServiceDesc, ss any) {
 	if ss != nil {
 		ht := reflect.TypeOf(sd.HandlerType).Elem()
@@ -100,8 +118,8 @@ func (s *Server) register(sd *grpc.ServiceDesc, ss any) error {
 	return nil
 }
 
-// Handle implements the Handler interface and processes the bytes sent to
-// the plugin as a gRPC request.
+// Handle implements the hornet.PluginHandler interface and processes the bytes
+// sent to the plugin as a gRPC request.
 func (s *Server) Handle(fn string, reqBytes []byte) []byte {
 	// Start a new context for each request.
 	ctx := context.Background()
@@ -167,7 +185,9 @@ func (s *Server) handleError(st *status.Status, args ...any) []byte {
 	// The first byte tells the client if it's an error or a valid response.
 	out, err := proto.MarshalOptions{}.MarshalAppend([]byte{1}, st.Proto())
 	if err != nil {
-		panic(err)
+		// This should never happen, as we are marshalling a status message. If it
+		// does, we panic, as we cannot return a proper error message to the client.
+		panic(fmt.Errorf("proto: error marshalling error: %w", err))
 	}
 
 	return out

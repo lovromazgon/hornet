@@ -24,7 +24,7 @@ func InitializeModuleAndCalculator(
 ) (api.Module, Calculator, error) {
 	module, calc, err := hornet.InstantiateModuleAndClient(ctx, runtime, source, calculatorv1.NewCalculatorPluginClient, opts...)
 	if err != nil {
-		panic(fmt.Errorf("failed to instantiate Wasm module: %w", err))
+		return nil, nil, fmt.Errorf("failed to instantiate Wasm module: %w", err)
 	}
 
 	return module, NewCalculatorFromClient(calc), nil
