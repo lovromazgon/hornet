@@ -2,7 +2,7 @@ package hornet
 
 import "log/slog"
 
-// ClientOption configures the client.
+// ClientOption configures the [ClientConn].
 type ClientOption interface {
 	applyClient(opt *clientOptions)
 }
@@ -13,7 +13,7 @@ type clientOptionFunc func(*clientOptions)
 
 func (f clientOptionFunc) applyClient(opt *clientOptions) { f(opt) }
 
-// ServerOption configures the server.
+// ServerOption configures the [Server].
 type ServerOption interface {
 	applyServer(opt *serverOptions)
 }
@@ -24,8 +24,8 @@ type serverOptionFunc func(*serverOptions)
 
 func (f serverOptionFunc) applyServer(opt *serverOptions) { f(opt) }
 
-// ClientServerOption is an option that can configure both the Server and
-// Client.
+// ClientServerOption is an option that can configure both the [Server] and the
+// [ClientConn].
 type ClientServerOption interface {
 	ClientOption
 	ServerOption
@@ -39,7 +39,7 @@ type clientServerOptionFunc struct {
 }
 
 // WithLogger returns a ClientServerOption that can set the logger for the
-// server or the client.
+// [Server] or the [ClientConn].
 func WithLogger(l *slog.Logger) ClientServerOption {
 	return clientServerOptionFunc{
 		clientOptionFunc: func(opt *clientOptions) { opt.logger = l },

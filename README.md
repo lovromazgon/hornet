@@ -99,7 +99,7 @@ func init() {
     // Initialize the plugin gRPC server
     srv := hornet.NewServer()
     calculatorv1.RegisterCalculatorPluginServer(srv, &Calculator{})
-    hornet.Init(srv)
+    hornet.InitPlugin(srv)
 }
 
 type Calculator struct {

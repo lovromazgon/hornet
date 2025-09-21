@@ -33,11 +33,11 @@ var defaultServerOptions = serverOptions{
 
 var _ grpc.ServiceRegistrar = (*Server)(nil)
 
-// Server is a gRPC server that implements the hornet.PluginHandler interface to
+// Server is a gRPC server that implements the [PluginHandler] interface to
 // be used in Wasm plugins. It supports unary RPCs only.
 //
 // It is similar to grpc.Server, but it does not implement the net.Listener
-// interface. Instead, it implements the hornet.PluginHandler interface to
+// interface. Instead, it implements the [PluginHandler] interface to
 // process the bytes sent to the plugin as a gRPC request.
 type Server struct {
 	opts serverOptions
@@ -118,7 +118,7 @@ func (s *Server) register(sd *grpc.ServiceDesc, ss any) error {
 	return nil
 }
 
-// Handle implements the hornet.PluginHandler interface and processes the bytes
+// Handle implements the [PluginHandler] interface and processes the bytes
 // sent to the plugin as a gRPC request.
 func (s *Server) Handle(fn string, reqBytes []byte) []byte {
 	// Start a new context for each request.

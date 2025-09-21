@@ -58,7 +58,7 @@ type ClientConn struct {
 // Use this function when you want to quickly instantiate a Wasm module and
 // create a gRPC client for it. If you need more control over the module
 // instantiation process, you can instantiate the module yourself and then
-// create a client using NewClient.
+// create a client using [NewClient].
 //
 // The returned api.Module must be closed by the caller when no longer needed.
 // Closing the module invalidates the returned gRPC client; future calls to
