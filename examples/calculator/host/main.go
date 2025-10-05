@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"cmp"
 	"context"
 	"errors"
 	"fmt"
@@ -41,6 +42,8 @@ func (o operation) String() string {
 	}
 }
 
+var errQuit = errors.New("quit")
+
 func main() {
 	ctx := context.Background()
 
@@ -54,40 +57,13 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
-		fmt.Print("> ")
-		if !scanner.Scan() {
-			break
-		}
-
-		input := strings.TrimSpace(scanner.Text())
-		if input == "" {
-			continue
-		}
-
-		// Check for quit commands
-		if input == "q" || input == "quit" || input == "exit" {
-			break
-		}
-
-		// Try to parse arithmetic operations
-		op, ok := parseOperation(input)
-		if !ok {
-			fmt.Println("Error: Invalid operation")
-			continue
-		}
-
-		parts := strings.Split(input, string(op))
-		if len(parts) != 2 {
-			fmt.Println("Error: Invalid format")
-			continue
-		}
-
-		a, err1 := strconv.ParseInt(strings.TrimSpace(parts[0]), 10, 64)
-		b, err2 := strconv.ParseInt(strings.TrimSpace(parts[1]), 10, 64)
-
-		if err1 != nil || err2 != nil {
-			fmt.Println("Error: Invalid numbers")
-			continue
+		// Fetch the next operation from stdin.
+		op, a, b, err := next(scanner)
+		if err != nil {
+			if errors.Is(err, errQuit) {
+				break
+			}
+			panic(err)
 		}
 
 		// Perform the operation using the plugin
@@ -108,25 +84,9 @@ func main() {
 		}
 
 		if err != nil {
-			fmt.Printf("[ HOST ] Error: %v\n", err)
-			continue
+			panic(err)
 		}
 		fmt.Printf("[ HOST ] %s(%d, %d) = %d\n", op, a, b, c)
-	}
-}
-
-func parseOperation(input string) (operation, bool) {
-	switch {
-	case strings.Contains(input, "+"):
-		return opAdd, true
-	case strings.Contains(input, "-"):
-		return opSub, true
-	case strings.Contains(input, "*"):
-		return opMul, true
-	case strings.Contains(input, "/"):
-		return opDiv, true
-	default:
-		return "", false
 	}
 }
 
@@ -166,6 +126,63 @@ func initPlugin(ctx context.Context, path string) (sdk.Calculator, func(), error
 	}
 
 	return calc, closeFn, nil
+}
+
+func next(scanner *bufio.Scanner) (operation, int64, int64, error) {
+	for {
+		fmt.Print("> ")
+		if !scanner.Scan() {
+			return "", 0, 0, scanner.Err()
+		}
+
+		input := strings.TrimSpace(scanner.Text())
+		if input == "" {
+			continue
+		}
+
+		// Check for quit commands
+		if input == "q" || input == "quit" || input == "exit" {
+			return "", 0, 0, errQuit
+		}
+
+		// Try to parse arithmetic operations
+		op, ok := parseOperation(input)
+		if !ok {
+			fmt.Println("Error: Invalid operation")
+			continue
+		}
+
+		parts := strings.Split(input, string(op))
+		if len(parts) != 2 {
+			fmt.Println("Error: Invalid format")
+			continue
+		}
+
+		a, err1 := strconv.ParseInt(strings.TrimSpace(parts[0]), 10, 64)
+		b, err2 := strconv.ParseInt(strings.TrimSpace(parts[1]), 10, 64)
+
+		if err1 != nil || err2 != nil {
+			fmt.Printf("Error: Invalid numbers: %v\n", cmp.Or(err1, err2))
+			continue
+		}
+
+		return op, a, b, nil
+	}
+}
+
+func parseOperation(input string) (operation, bool) {
+	switch {
+	case strings.Contains(input, "+"):
+		return opAdd, true
+	case strings.Contains(input, "-"):
+		return opSub, true
+	case strings.Contains(input, "*"):
+		return opMul, true
+	case strings.Contains(input, "/"):
+		return opDiv, true
+	default:
+		return "", false
+	}
 }
 
 func initProgress() (chan<- struct{}, <-chan struct{}) {
