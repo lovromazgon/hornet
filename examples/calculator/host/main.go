@@ -37,7 +37,7 @@ func (o operation) String() string {
 	case opDiv:
 		return "Div"
 	default:
-		return "Unknown"
+		return ""
 	}
 }
 
