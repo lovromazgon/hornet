@@ -12,8 +12,9 @@ The makefile automates building the plugin and running it using the host:
 make run
 ```
 
-The host will load the WebAssembly plugin and perform various calculations,
-demonstrating concurrent access and error handling.
+The host will load the WebAssembly plugin and start an interactive REPL where
+you can enter arithmetic expressions and see the results computed by the plugin,
+demonstrating error handling and the communication between host and plugin.
 
 ## Overview
 
@@ -113,25 +114,28 @@ This pattern ensures that plugin developers and host applications can work with
 strongly-typed errors without needing to understand the underlying gRPC error
 mechanism.
 
-### Concurrent Access
+### Interactive REPL Interface
 
-The host demonstrates concurrent plugin calls:
+The host provides an interactive REPL interface that allows you to enter
+arithmetic expressions and see the results:
 
-```go
-var wg sync.WaitGroup
-// Simulate concurrent access from 10 goroutines
-for range 10 {
-    wg.Add(1)
-    go func() {
-        defer wg.Done()
-        add(ctx, calc)
-        sub(ctx, calc)
-        mul(ctx, calc)
-        div(ctx, calc)
-    }()
-}
-wg.Wait()
+```bash
+> 10 + 5
+[PLUGIN] 10 + 5 = 15
+[ HOST ] Add(10, 5) = 15
+> 20 / 0
+[PLUGIN] Whoah, don't divide by 0!
+[ HOST ] Error: detected sdk.ErrDivisionByZero error
+> quit
 ```
+
+The interface supports:
+- Basic arithmetic operations: `+`, `-`, `*`, `/`
+- Error handling for invalid operations and division by zero
+- Output distinction between plugin (`[PLUGIN]`) and host (`[ HOST ]`) messages
+- Quit commands: `q`, `quit`, or `exit`
+
+### Concurrent Access
 
 **Important**: While the host can make concurrent calls to the plugin,
 **WebAssembly does not support concurrent access to memory**. Hornet
