@@ -29,27 +29,28 @@ type Calculator struct{}
 
 func (c *Calculator) Add(ctx context.Context, a, b int64) (int64, error) {
 	r := a + b
-	fmt.Printf("%d + %d = %d\n", a, b, r)
+	fmt.Printf("[PLUGIN] %d + %d = %d\n", a, b, r)
 	return r, nil
 }
 
 func (c *Calculator) Sub(ctx context.Context, a, b int64) (int64, error) {
 	r := a - b
-	fmt.Printf("%d - %d = %d\n", a, b, r)
+	fmt.Printf("[PLUGIN] %d - %d = %d\n", a, b, r)
 	return r, nil
 }
 
 func (c *Calculator) Mul(ctx context.Context, a, b int64) (int64, error) {
 	r := a * b
-	fmt.Printf("%d * %d = %d\n", a, b, r)
+	fmt.Printf("[PLUGIN] %d * %d = %d\n", a, b, r)
 	return r, nil
 }
 
 func (c *Calculator) Div(ctx context.Context, a, b int64) (int64, error) {
 	if b == 0 {
+		fmt.Println("[PLUGIN] Whoah, don't divide by 0!")
 		return 0, sdk.ErrDivisionByZero
 	}
 	r := a / b
-	fmt.Printf("%d / %d = %d\n", a, b, r)
+	fmt.Printf("[PLUGIN] %d / %d = %d\n", a, b, r)
 	return r, nil
 }

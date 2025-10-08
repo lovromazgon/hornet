@@ -1,6 +1,12 @@
 package sdk
 
-import "context"
+import (
+	"context"
+	"errors"
+)
+
+// ErrDivisionByZero should be returned when attempting to divide by zero.
+var ErrDivisionByZero = errors.New("division by zero")
 
 // Calculator is the interface for the plugin.
 //

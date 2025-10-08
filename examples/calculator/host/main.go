@@ -1,110 +1,212 @@
 package main
 
 import (
+	"bufio"
+	"cmp"
 	"context"
 	"errors"
 	"fmt"
-	"math/rand"
 	"os"
-	"sync"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/lovromazgon/hornet/examples/calculator/sdk"
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
 )
 
-const path = "../plugin/main.wasm"
+const pluginPath = "../plugin/main.wasm"
+
+type operation string
+
+const (
+	opAdd operation = "+"
+	opSub operation = "-"
+	opMul operation = "*"
+	opDiv operation = "/"
+)
+
+func (o operation) String() string {
+	switch o {
+	case opAdd:
+		return "Add"
+	case opSub:
+		return "Sub"
+	case opMul:
+		return "Mul"
+	case opDiv:
+		return "Div"
+	default:
+		return ""
+	}
+}
+
+var errQuit = errors.New("quit")
 
 func main() {
 	ctx := context.Background()
 
+	calc, closeFn, err := initPlugin(ctx, pluginPath)
+	if err != nil {
+		panic(err)
+	}
+	defer closeFn()
+
+	// Simple REPL to read operations from stdin.
+	scanner := bufio.NewScanner(os.Stdin)
+
+	for {
+		// Fetch the next operation from stdin.
+		op, a, b, err := next(scanner)
+		if err != nil {
+			if errors.Is(err, errQuit) {
+				break
+			}
+			panic(err)
+		}
+
+		// Perform the operation using the plugin
+		var c int64
+		switch op {
+		case opAdd:
+			c, err = calc.Add(ctx, a, b)
+		case opSub:
+			c, err = calc.Sub(ctx, a, b)
+		case opMul:
+			c, err = calc.Mul(ctx, a, b)
+		case opDiv:
+			c, err = calc.Div(ctx, a, b)
+			if errors.Is(err, sdk.ErrDivisionByZero) {
+				fmt.Println("[ HOST ] Error: detected sdk.ErrDivisionByZero error")
+				continue
+			}
+		}
+
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("[ HOST ] %s(%d, %d) = %d\n", op, a, b, c)
+	}
+}
+
+func initPlugin(ctx context.Context, path string) (sdk.Calculator, func(), error) {
 	// Create a Wasm runtime, set up WASI.
 	r := wazero.NewRuntime(ctx)
-	defer r.Close(ctx)
 
 	wasi_snapshot_preview1.MustInstantiate(ctx, r)
 
 	wasmBytes, err := os.ReadFile(path)
 	if err != nil {
-		panic(fmt.Errorf("failed to read Wasm file %q: %w", path, err))
+		r.Close(ctx)
+		return nil, nil, fmt.Errorf("failed to read Wasm file %q: %w", path, err)
 	}
+
+	initStop, initDone := initProgress()
 
 	module, calc, err := sdk.InitializeModuleAndCalculator(ctx, r, wasmBytes)
 	if err != nil {
-		panic(fmt.Errorf("failed to instantiate Wasm module: %w", err))
-	}
-	defer module.Close(ctx)
-
-	var wg sync.WaitGroup
-	for range 10 {
-		wg.Add(1)
-
-		go func() {
-			defer wg.Done()
-
-			add(ctx, calc)
-			sub(ctx, calc)
-			mul(ctx, calc)
-			div(ctx, calc)
-		}()
+		return nil, nil, fmt.Errorf("failed to instantiate Wasm module: %w", err)
 	}
 
-	wg.Wait()
-}
+	close(initStop)
+	<-initDone
 
-func add(ctx context.Context, calc sdk.Calculator) {
-	a, b := randomNumbers()
-
-	c, err := calc.Add(ctx, a, b)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("Add(%d, %d): %d\n", a, b, c)
-}
-
-func sub(ctx context.Context, calc sdk.Calculator) {
-	a, b := randomNumbers()
-
-	c, err := calc.Sub(ctx, a, b)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("Sub(%d, %d): %d\n", a, b, c)
-}
-
-func mul(ctx context.Context, calc sdk.Calculator) {
-	a, b := randomNumbers()
-
-	c, err := calc.Mul(ctx, a, b)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("Mul(%d, %d): %d\n", a, b, c)
-}
-
-func div(ctx context.Context, calc sdk.Calculator) {
-	a, b := randomNumbers()
-	if b > 50 {
-		// 50% chance to get division by zero error
-		b = 0
-	}
-
-	c, err := calc.Div(ctx, a, b)
-	if err != nil {
-		if errors.Is(err, sdk.ErrDivisionByZero) {
-			fmt.Printf("Div(%d, %d) error: %v\n", a, b, err)
-			return
+	closeFn := func() {
+		fmt.Println("Closing Wasm module...")
+		err := module.Close(ctx)
+		if err != nil {
+			fmt.Printf("Error closing module: %v\n", err)
 		}
-		panic(err)
+		fmt.Println("Closing Wasm runtime...")
+		err = r.Close(ctx)
+		if err != nil {
+			fmt.Printf("Error closing runtime: %v\n", err)
+		}
 	}
 
-	fmt.Printf("Div(%d, %d): %d\n", a, b, c)
+	return calc, closeFn, nil
 }
 
-func randomNumbers() (int64, int64) {
-	a, b := rand.Intn(100), rand.Intn(100)
-	return int64(a), int64(b)
+func next(scanner *bufio.Scanner) (operation, int64, int64, error) {
+	for {
+		fmt.Print("> ")
+		if !scanner.Scan() {
+			return "", 0, 0, scanner.Err()
+		}
+
+		input := strings.TrimSpace(scanner.Text())
+		if input == "" {
+			continue
+		}
+
+		// Check for quit commands
+		if input == "q" || input == "quit" || input == "exit" {
+			return "", 0, 0, errQuit
+		}
+
+		// Try to parse arithmetic operations
+		op, ok := parseOperation(input)
+		if !ok {
+			fmt.Println("Error: Invalid operation")
+			continue
+		}
+
+		parts := strings.Split(input, string(op))
+		if len(parts) != 2 {
+			fmt.Println("Error: Invalid format")
+			continue
+		}
+
+		a, err1 := strconv.ParseInt(strings.TrimSpace(parts[0]), 10, 64)
+		b, err2 := strconv.ParseInt(strings.TrimSpace(parts[1]), 10, 64)
+
+		if err1 != nil || err2 != nil {
+			fmt.Printf("Error: Invalid numbers: %v\n", cmp.Or(err1, err2))
+			continue
+		}
+
+		return op, a, b, nil
+	}
+}
+
+func parseOperation(input string) (operation, bool) {
+	switch {
+	case strings.Contains(input, "+"):
+		return opAdd, true
+	case strings.Contains(input, "-"):
+		return opSub, true
+	case strings.Contains(input, "*"):
+		return opMul, true
+	case strings.Contains(input, "/"):
+		return opDiv, true
+	default:
+		return "", false
+	}
+}
+
+func initProgress() (chan<- struct{}, <-chan struct{}) {
+	stop := make(chan struct{})
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+
+		now := time.Now()
+		ticker := time.Tick(100 * time.Millisecond)
+		progressChars := []string{"-", "\\", "|", "/"}
+		charIndex := 0
+
+		fmt.Print("Initializing Wasm module...  ")
+		for {
+			select {
+			case <-stop:
+				fmt.Printf("\b\b\b\b\b - Done (%s)! ✅\n", time.Since(now).Truncate(time.Millisecond))
+				return
+			case <-ticker:
+				fmt.Printf("\b%s", progressChars[charIndex])
+				charIndex = (charIndex + 1) % len(progressChars)
+			}
+		}
+	}()
+	return stop, done
 }

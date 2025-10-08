@@ -14,26 +14,8 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-var ErrDivisionByZero = errors.New("division by zero")
-
-func InitializeModuleAndCalculator(
-	ctx context.Context,
-	runtime wazero.Runtime,
-	source []byte,
-	opts ...hornet.ClientOption,
-) (api.Module, Calculator, error) {
-	module, calc, err := hornet.InstantiateModuleAndClient(ctx, runtime, source, calculatorv1.NewCalculatorPluginClient, opts...)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to instantiate Wasm module: %w", err)
-	}
-
-	return module, NewCalculatorFromClient(calc), nil
-}
-
-func NewCalculatorFromClient(client calculatorv1.CalculatorPluginClient) Calculator {
-	return &calculatorClient{client: client}
-}
-
+// calculatorClient is an adapter that wraps a calculatorv1.CalculatorPluginClient
+// and exposes it as a Calculator.
 type calculatorClient struct {
 	client calculatorv1.CalculatorPluginClient
 }
@@ -83,14 +65,8 @@ func (c *calculatorClient) Div(ctx context.Context, a, b int64) (int64, error) {
 	return out.GetC(), nil
 }
 
-// RegisterCalculator registers the Calculator implementation on the grpc
-// service registrar (grpc.Server). Use this method when initializing the plugin.
-func RegisterCalculator(srv grpc.ServiceRegistrar, calc Calculator) {
-	calculatorv1.RegisterCalculatorPluginServer(srv, &calculatorServer{impl: calc})
-}
-
-// calculatorServer is a utility struct, an adapter that wraps a Calculator and
-// exposes it as a server that implements the proto server definition.
+// calculatorServer is an adapter that wraps a Calculator and exposes it as a
+// server that implements the proto server definition.
 type calculatorServer struct {
 	calculatorv1.UnimplementedCalculatorPluginServer
 
@@ -139,4 +115,36 @@ func (c *calculatorServer) Div(ctx context.Context, req *calculatorv1.DivRequest
 	}
 
 	return &calculatorv1.DivResponse{C: out}, nil
+}
+
+// NewCalculatorFromClient creates a Calculator from the given
+// calculatorv1.CalculatorPluginClient. Use this in the host to hide the gRPC
+// client behind the Calculator interface.
+func NewCalculatorFromClient(client calculatorv1.CalculatorPluginClient) Calculator {
+	return &calculatorClient{client: client}
+}
+
+// RegisterCalculator registers the Calculator implementation on the grpc
+// service registrar (grpc.Server). Use this method when initializing the plugin.
+func RegisterCalculator(srv grpc.ServiceRegistrar, calc Calculator) {
+	calculatorv1.RegisterCalculatorPluginServer(srv, &calculatorServer{impl: calc})
+}
+
+// InitializeModuleAndCalculator initializes the Wasm module from the given
+// source and returns both the instantiated module and a Calculator client that
+// can be used to call the plugin's methods.
+// The caller is responsible for closing the returned module when it's no longer
+// needed.
+func InitializeModuleAndCalculator(
+	ctx context.Context,
+	runtime wazero.Runtime,
+	source []byte,
+	opts ...hornet.ClientOption,
+) (api.Module, Calculator, error) {
+	module, calc, err := hornet.InstantiateModuleAndClient(ctx, runtime, source, calculatorv1.NewCalculatorPluginClient, opts...)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to instantiate Wasm module: %w", err)
+	}
+
+	return module, NewCalculatorFromClient(calc), nil
 }

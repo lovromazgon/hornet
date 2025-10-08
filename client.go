@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"sync"
@@ -72,10 +73,11 @@ func InstantiateModuleAndClient[T any](
 ) (api.Module, T, error) {
 	var zeroT T
 
-	// Configure the module to initialize the reactor.
+	// Configure the module to initialize the reactor. Pipe stdout and stderr to
+	// the host's stdout and stderr without making the resource unavailable.
 	config := wazero.NewModuleConfig().
-		WithStdout(os.Stdout).
-		WithStderr(os.Stderr).
+		WithStdout(pipeWriter(os.Stdout)).
+		WithStderr(pipeWriter(os.Stderr)).
 		WithStartFunctions("_initialize")
 
 	// Instantiate the module.
@@ -92,6 +94,20 @@ func InstantiateModuleAndClient[T any](
 	}
 
 	return wasmModule, newClient(client), nil
+}
+
+// pipeWriter takes a writer and returns a new writer that writes to an io.Pipe.
+// The pipe is copied to the original writer in a background goroutine.
+func pipeWriter(w io.Writer) io.Writer {
+	pr, pw := io.Pipe()
+
+	go func() {
+		_, err := io.Copy(w, pr)
+		// Close the pipe reader with any error from copying
+		pr.CloseWithError(err)
+	}()
+
+	return pw
 }
 
 // NewClient creates a new gRPC client that communicates with the given Wasm
