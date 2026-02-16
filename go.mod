@@ -6,7 +6,7 @@ require (
 	github.com/matryer/is v1.4.1
 	github.com/tetratelabs/wazero v1.11.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217
-	google.golang.org/grpc v1.79.0
+	google.golang.org/grpc v1.79.1
 	google.golang.org/protobuf v1.36.11
 )
 
